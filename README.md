@@ -75,6 +75,7 @@ The parser lives in `src/parser.js` and produces a source-located syntax tree. T
 - `animation "fade-up"`, `animation "fade"`, and `animation "scale"`
 - Layout primitives with validated spacing, alignment, wrapping, and responsive grids
 - Named design tokens for colours, radii, shadows, font families, and sizes, exposed as CSS custom properties; semantic theme colours can reference colour tokens
+- Validated component styling for button variants, card and panel surfaces, text tones, and token-driven radius, shadow, font, and type size
 - Responsive styling, hover/press feedback, scroll reveals, and reduced-motion handling
 
 ## Scope and roadmap

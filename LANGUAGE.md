@@ -87,7 +87,30 @@ Layout settings are nested as simple child lines, for example `gap "24px"`, `ali
 
 Supported animation names are `fade-up`, `fade`, and `scale`. Animation effects respect the browser's reduced-motion preference.
 
-## 5. Reusable components
+## 5. Component styling
+
+Buttons, cards, panels, headings, text, and badges support styling blocks. Values are validated and token references must match their declared type.
+
+```forma
+button "Continue"
+  variant "secondary"
+  radius "$card"
+  shadow "$soft"
+  font "$display"
+  text-size "$large"
+
+card
+  surface "glass"
+  variant "featured"
+  title "A polished surface"
+
+text "Supporting detail"
+  tone "muted"
+```
+
+Buttons support `primary`, `secondary`, `quiet`, and `danger` variants. Cards and panels support `solid`, `soft`, and `glass` surfaces plus the `featured` variant. Text tones are `default`, `accent`, `muted`, and `danger`. `radius`, `shadow`, `font`, and `text-size` must reference tokens of the matching type. Existing `material "glass"` and button `style "secondary"` syntax remains supported.
+
+## 6. Reusable components
 
 Define components directly inside `site`. Properties can use the legacy form `prop name "default value"`, or typed declarations such as `prop count number 3`, `prop enabled boolean false`, and required properties such as `prop heading string`. Supported types are `string`, `number`, and `boolean`. Properties are referenced in text using braces.
 
@@ -108,7 +131,7 @@ site "Example"
 
 Component names use PascalCase. Property names start with a letter or underscore and may then contain letters, numbers, or underscores. An instance may override a default by providing an indented property line. Omit the default to make a property required. Numeric values must be finite numbers, and boolean values must be `true` or `false`. Unknown, repeated, missing required, and incorrectly typed properties are errors. Legacy untyped string properties remain supported. Recursive component calls are rejected.
 
-## 6. Reactive state
+## 7. Reactive state
 
 Declare state inside `page`. Use `{name}` in text to bind it. A button can contain an `on click` block with `set` actions.
 
@@ -124,7 +147,7 @@ site "Counter"
 
 Initial state supports numbers, booleans, and quoted strings. The current runtime supports numeric addition/subtraction and simple assignments. It is not a general-purpose expression evaluator; conditional rendering, input binding, loops, and multi-page routing are not implemented.
 
-## 7. Compile and test
+## 8. Compile and test
 
 Requires Node.js 20 or newer. No third-party packages are required.
 
