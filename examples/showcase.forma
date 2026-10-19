@@ -450,7 +450,7 @@ site "Forma · Feature Atlas"
     panel
       title "09 / Reactive state"
       text "The little counter below uses declared state, text interpolation, click handlers, and set actions. Press the buttons to update the number."
-      card
+      panel
         surface "glass"
         title "Counter playground"
         text "Current count: {count}"
