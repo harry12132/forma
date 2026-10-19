@@ -220,7 +220,7 @@ site "Forma · Feature Atlas"
           label "Defaults can be overridden"
           metric 7
           highlighted false
-      text "Property interpolation uses braces, for example: {heading}. Defaults can be supplied in a prop declaration, or a property can be required by omitting its default. Typed properties support strings, numbers, and booleans."
+      text "Property interpolation inserts a property name wrapped in braces. Defaults can be supplied in a prop declaration, or a property can be required by omitting its default. Typed properties support strings, numbers, and booleans."
 
     panel
       title "04 / Design tokens"
