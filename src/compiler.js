@@ -44,39 +44,39 @@ function getTheme(theme) {
   for (const child of children(theme, 'token')) {
     const [type, name, ...rawValue] = child.args;
     const value = rawValue.join(' ');
-    if (!['color', 'radius', 'shadow', 'font', 'size'].includes(type)) throw new Error(\`Line \${child.line}: token type must be color, radius, shadow, font, or size.\`);
-    if (!/^[a-z][a-z0-9-]*$/.test(name || '')) throw new Error(\`Line \${child.line}: token names must start with a lowercase letter and contain only lowercase letters, numbers, and hyphens.\`);
-    if (!value || !child.args[2] || child.children.length) throw new Error(\`Line \${child.line}: use 'token color primary "#c6f36b"' with a type, name, and value.\`);
-    if (Object.hasOwn(result.tokens, name)) throw new Error(\`Line \${child.line}: token '\${name}' is declared more than once.\`);
+    if (!['color', 'radius', 'shadow', 'font', 'size'].includes(type)) throw new Error(`Line ${child.line}: token type must be color, radius, shadow, font, or size.`);
+    if (!/^[a-z][a-z0-9-]*$/.test(name || '')) throw new Error(`Line ${child.line}: token names must start with a lowercase letter and contain only lowercase letters, numbers, and hyphens.`);
+    if (!value || !child.args[2] || child.children.length) throw new Error(`Line ${child.line}: use 'token color primary "#c6f36b"' with a type, name, and value.`);
+    if (Object.hasOwn(result.tokens, name)) throw new Error(`Line ${child.line}: token '${name}' is declared more than once.`);
     let checked = value;
     if (type === 'color') checked = checkedColor(value, '');
     else if (type === 'radius' || type === 'size') {
       checked = checkedLength(value, '');
-      if (!checked || ['none', 'auto'].includes(checked)) throw new Error(\`Line \${child.line}: \${type} tokens need a concrete CSS length.\`);
+      if (!checked || ['none', 'auto'].includes(checked)) throw new Error(`Line ${child.line}: ${type} tokens need a concrete CSS length.`);
       if (/^\d+(?:\.\d+)?$/.test(checked)) checked += 'px';
     } else if (type === 'font') {
-      if (!/^[\w ,'-]{1,80}$/.test(value)) throw new Error(\`Line \${child.line}: invalid font token.\`);
-      checked = \`'\${value.replace(/['\\]/g, '')}'\`;
+      if (!/^[\w ,'-]{1,80}$/.test(value)) throw new Error(`Line ${child.line}: invalid font token.`);
+      checked = `'${value.replace(/['\\]/g, '')}'`;
     } else if (!/^[#(),.%\w\s-]{1,120}$/.test(value) || /[;{}]/.test(value)) {
-      throw new Error(\`Line \${child.line}: invalid shadow token value.\`);
+      throw new Error(`Line ${child.line}: invalid shadow token value.`);
     }
     result.tokens[name] = { type, value: checked, line: child.line };
   }
   for (const child of theme.children.filter(c => c.name !== 'token')) {
     const v = arg(child);
     if (child.name === 'font') {
-      if (!/^[\w ,'-]{1,80}$/.test(v)) throw new Error(\`Line \${child.line}: invalid font name.\`);
+      if (!/^[\w ,'-]{1,80}$/.test(v)) throw new Error(`Line ${child.line}: invalid font name.`);
       result.font = v;
     } else {
       const match = /^\$([a-z][a-z0-9-]*)$/.exec(v);
       if (match) {
         const token = result.tokens[match[1]];
-        if (!token || token.type !== 'color') throw new Error(\`Line \${child.line}: '\${v}' must reference a declared color token.\`);
+        if (!token || token.type !== 'color') throw new Error(`Line ${child.line}: '${v}' must reference a declared color token.`);
         result[child.name] = token.value;
       } else result[child.name] = checkedColor(v, result[child.name]);
     }
   }
-  result.tokenCss = Object.entries(result.tokens).map(([name, token]) => \`--forma-\${token.type}-\${name}:\${token.value}\`).join(';');
+  result.tokenCss = Object.entries(result.tokens).map(([name, token]) => `--forma-${token.type}-${name}:${token.value}`).join(';');
   return result;
 }
 function interpolate(value, props = {}) {
