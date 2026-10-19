@@ -137,18 +137,27 @@ function parseState(node) {
   return [node.args[0], value];
 }
 function parseSetAction(node, states) {
-  const match = node.args.join(' ').match(/^([A-Za-z_][\w]*)\s*=\s*([A-Za-z_][\w]*|true|false|-?\d+(?:\.\d+)?|\"[^\"]*\"|'[^']*')\s*([+\-])?\s*(-?\d+(?:\.\d+)?)?$/);
-  if (!match) throw new Error(`Line ${node.line}: unsupported action. Try 'set count = count + 1'.`);
-  const [, target, source, operator, amount] = match;
+  const args = node.args;
+  const target = args[0];
+  if (!/^[A-Za-z_][\\w]*$/.test(target || '') || args[1] !== '=') {
+    throw new Error(`Line ${node.line}: unsupported action. Try 'set count = count + 1'.`);
+  }
   if (!Object.hasOwn(states, target)) throw new Error(`Line ${node.line}: state '${target}' has not been declared.`);
-  if (operator && source !== target) throw new Error(`Line ${node.line}: arithmetic actions must use the same state, e.g. 'set ${target} = ${target} + 1'.`);
-  if (operator && amount === undefined) throw new Error(`Line ${node.line}: arithmetic action needs a number after '${operator}'.`);
-  if (operator) return `${operator === '+' ? 'add' : 'subtract'}:${target}:${Number(amount)}`;
+
+  if (args.length === 5 && (args[3] === '+' || args[3] === '-') && args[2] === target && /^-?\\d+(?:\\.\\d+)?$/.test(args[4])) {
+    return `${args[3] === '+' ? 'add' : 'subtract'}:${target}:${Number(args[4])}`;
+  }
+  if (args.length !== 3) {
+    throw new Error(`Line ${node.line}: unsupported action. Try 'set count = count + 1'.`);
+  }
+
+  const source = args[2];
   let value;
-  if (Object.hasOwn(states, source)) value = states[source];
-  else if (source === 'true' || source === 'false') value = source === 'true';
-  else if (/^-?\d/.test(source)) value = Number(source);
-  else value = source.slice(1, -1);
+  if (source === 'true' || source === 'false') value = source === 'true';
+  else if (/^-?\\d+(?:\\.\\d+)?$/.test(source)) value = Number(source);
+  else if (Object.hasOwn(states, source)) value = states[source];
+  else value = source;
+
   return `assign:${target}:${encodeURIComponent(JSON.stringify(value))}`;
 }
 function parseLink(node, props = {}) {
