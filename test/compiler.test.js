@@ -383,3 +383,20 @@ test('rejects unsafe or excessively long motion settings', () => {
   assert.throws(() => compile('site "Motion"\n  page "/"\n    hero\n      animation "fade-up"\n        duration "9999ms"'), /duration is too long/);
   assert.throws(() => compile('site "Motion"\n  page "/"\n    hero\n      animation "fade-up"\n        easing "chaotic"'), /easing must be smooth, spring, snappy, or linear/);
 });
+
+
+test('compiles liquid glass surfaces and visual effects', () => {
+  const src = 'site "Materials"\n  page "/"\n    panel\n      surface "liquid-glass"\n      effect "reflection"\n      title "Liquid glass"\n    card\n      surface "glass"\n      effect "aurora"\n      title "Ambient glow"\n    button "Explore" -> "/next"\n      surface "liquid-glass"\n      effect "border-glow"';
+  const result = compile(src);
+  assert.match(result.html, /forma-surface-liquid-glass forma-effect-reflection/);
+  assert.match(result.html, /forma-effect-aurora/);
+  assert.match(result.html, /forma-effect-border-glow/);
+  assert.match(result.css, /backdrop-filter:blur\(32px\) saturate\(1\.8\)/);
+  assert.match(result.css, /@keyframes forma-aurora-drift/);
+  assert.match(result.css, /prefers-reduced-motion/);
+});
+
+test('rejects unsupported surfaces and visual effects', () => {
+  assert.throws(() => compile('site "Materials"\n  page "/"\n    card\n      surface "hologram"'), /surface must be solid, soft, glass, or liquid-glass/);
+  assert.throws(() => compile('site "Materials"\n  page "/"\n    panel\n      effect "rainbow"'), /effect must be reflection, aurora, border-glow, or none/);
+});
