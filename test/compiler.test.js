@@ -400,3 +400,52 @@ test('rejects unsupported surfaces and visual effects', () => {
   assert.throws(() => compile('site "Materials"\n  page "/"\n    card\n      surface "hologram"'), /surface must be solid, soft, glass, or liquid-glass/);
   assert.throws(() => compile('site "Materials"\n  page "/"\n    panel\n      effect "rainbow"'), /effect must be reflection, aurora, border-glow, or none/);
 });
+
+
+test('compiles accessible accordion, tabs, tooltip, dropdown, and modal primitives', () => {
+  const src = [
+    'site "Interactions"',
+    '  page "/"',
+    '    accordion',
+    '      item "What is Forma?"',
+    '        text "A small frontend language."',
+    '      item "Does it compile?"',
+    '        text "Yes, into HTML and CSS."',
+    '    tabs',
+    '      tab "Overview"',
+    '        title "Overview panel"',
+    '        text "First tab content."',
+    '      tab "Details"',
+    '        text "Second tab content."',
+    '    tooltip "What is this?"',
+    '      text "Helpful extra context."',
+    '    dropdown "Resources"',
+    '      option "Documentation" -> "/docs"',
+    '      option "Home" -> "/"',
+    '    modal "Open details"',
+    '      title "A native dialog"',
+    '      text "This content appears in a modal."'
+  ].join('\n');
+  const result = compile(src);
+  assert.match(result.html, /class="forma-accordion"/);
+  assert.match(result.html, /<details class="forma-accordion-item" open>/);
+  assert.match(result.html, /role="tablist"/);
+  assert.match(result.html, /aria-selected="true"/);
+  assert.match(result.html, /data-forma-tab-panel="1"/);
+  assert.match(result.html, /role="tooltip"/);
+  assert.match(result.html, /class="forma-dropdown-menu"/);
+  assert.match(result.html, /data-forma-open-dialog="forma-dialog-19"/);
+  assert.match(result.html, /<dialog class="forma-dialog"/);
+  assert.match(result.html, /data-forma-close-dialog/);
+  assert.match(result.html, /ArrowRight/);
+  assert.match(result.css, /\.forma-accordion-item/);
+  assert.match(result.css, /\.forma-tab-button/);
+  assert.match(result.css, /\.forma-dialog::backdrop/);
+});
+
+test('rejects empty or malformed interaction primitives', () => {
+  assert.throws(() => compile('site "X"\n  page "/"\n    accordion'), /accordion needs at least one 'item'/);
+  assert.throws(() => compile('site "X"\n  page "/"\n    tabs\n      tab "Empty"'), /each tab needs a label and content/);
+  assert.throws(() => compile('site "X"\n  page "/"\n    tooltip "Hint"\n      title "Not text"'), /tooltip expects a label and one nested text block/);
+  assert.throws(() => compile('site "X"\n  page "/"\n    dropdown "Menu"'), /dropdown needs at least one 'option'/);
+});

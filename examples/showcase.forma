@@ -70,5 +70,27 @@ site "Forma Studio"
       text "Forma compiles to ordinary HTML and CSS today. Next, we will expand the parser, add tests, and build a proper component and interaction model."
       animation "fade-up"
 
+    panel
+      title "Made for the moments between clicks."
+      text "Interactions are part of the language now, not a separate pile of scripts."
+      tabs
+        tab "Accordion"
+          text "Group answers and details into a calm, collapsible list."
+        tab "Tabs"
+          text "Switch between related views without leaving the page."
+        tab "Dialogs"
+          text "Use a native modal for focused actions and details."
+      row
+        gap "16px"
+        align center
+        tooltip "A tiny detail"
+          text "Tooltips work on hover and keyboard focus."
+        dropdown "Explore"
+          option "Forma language" -> "#language"
+          option "Motion system" -> "#motion"
+        modal "Preview a dialog"
+          title "A real browser dialog."
+          text "Forma now gives interactive components a clear, declarative home."
+          button "Got it" -> "#start"
     footer
       text "Forma is an experimental open-source language project. Built for the details."

@@ -71,6 +71,7 @@ The parser lives in `src/parser.js` and produces a source-located syntax tree. T
 - `site`, `theme`, `page`
 - `nav`, `hero`, `badge`, `title`, `text`, `link`, `button`
 - `cards`, `card`, `panel`, `footer`, `stack`, `row`, `grid`, `container`, `spacer`, `divider`
+- Interactive primitives: accordions, keyboard-navigable tabs, tooltips, dropdown menus, and native modal dialogs
 - `material "glass"`
 - Scroll reveals: `fade-up`, `fade-down`, `fade-left`, `fade-right`, `fade`, `scale`, `zoom`, and `blur`, with configurable duration, delay, and easing
 - CSS hover interactions: `lift`, `glow`, `scale`, and `tilt`, with reduced-motion support
