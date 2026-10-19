@@ -58,7 +58,15 @@ The current compiler recognises these page elements:
 - `card`: `title`, `text`, optional `material "glass"`, and `animation`.
 - `panel`: general content, with optional `material "glass"` and `animation`.
 - `footer`: general content.
+- `stack`: vertical flex layout with `gap` and `align`.
+- `row`: horizontal flex layout with `gap`, `align`, `justify`, and `wrap`.
+- `grid`: responsive grid with `columns` (1 to 6) and `gap`.
+- `container`: centered content width with `max` and horizontal `padding`.
+- `spacer`: fixed vertical space, for example `spacer "32px"`.
+- `divider`: a horizontal separator.
 - `title`, `text`, `badge`, `link`, and `button`: text and action elements.
+
+Layout settings are nested as simple child lines, for example `gap "24px"`, `align center`, `justify between`, `wrap true`, `columns 3`, `max "1200px"`, and `padding "24px"`. Sizes accept a limited, validated set of CSS lengths. Grid layouts collapse to one column on small screens.
 
 Supported animation names are `fade-up`, `fade`, and `scale`. Animation effects respect the browser's reduced-motion preference.
 
