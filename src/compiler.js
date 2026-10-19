@@ -128,9 +128,13 @@ function parseLink(node, props = {}) {
   throw new Error(`Line ${node.line}: '${node.name}' needs a label and a destination, e.g. link "Docs" -> "/docs".`);
 }
 
-function layoutOptions(node, defaults = {}) {
+function layoutOptions(node, defaults = {}, supported = ['gap', 'align', 'justify', 'wrap', 'columns', 'max', 'padding']) {
   const settingNames = ['gap', 'align', 'justify', 'wrap', 'columns', 'max', 'padding'];
-  for (const child of node.children) if (settingNames.includes(child.name) && child.children.length) throw new Error(`Line ${child.line}: layout settings cannot contain nested blocks.`);
+  for (const child of node.children) {
+    if (!settingNames.includes(child.name)) continue;
+    if (!supported.includes(child.name)) throw new Error(`Line ${child.line}: '${child.name}' is not supported inside '${node.name}'.`);
+    if (child.children.length) throw new Error(`Line ${child.line}: layout settings cannot contain nested blocks.`);
+  }
   const result = { ...defaults };
   for (const key of settingNames) {
     const setting = one(node, key);
@@ -160,7 +164,7 @@ function layoutStyle(options, keys) {
   if (keys.includes('gap') && options.gap) declarations.push(`gap:${options.gap}`);
   if (keys.includes('align') && options.align) declarations.push(`align-items:${({ start: 'flex-start', center: 'center', end: 'flex-end', stretch: 'stretch', baseline: 'baseline' })[options.align]}`);
   if (keys.includes('justify') && options.justify) declarations.push(`justify-content:${({ start: 'flex-start', center: 'center', end: 'flex-end', between: 'space-between', around: 'space-around', evenly: 'space-evenly' })[options.justify]}`);
-  if (keys.includes('wrap') && options.wrap) declarations.push('flex-wrap:wrap');
+  if (keys.includes('wrap') && options.wrap !== undefined) declarations.push(`flex-wrap:${options.wrap ? 'wrap' : 'nowrap'}`);
   if (keys.includes('columns') && options.columns) declarations.push(`--forma-columns:${options.columns}`);
   if (keys.includes('max') && options.max) declarations.push(`max-width:${options.max}`);
   if (keys.includes('padding') && options.padding) declarations.push(`padding-inline:${options.padding}`);
@@ -212,19 +216,19 @@ function renderNode(node, context = {}) {
       return `<section class="panel${glass ? ' glass' : ''}"${anim ? ` data-reveal="${escapeHtml(arg(anim))}"` : ''}>${content}</section>`;
     }
     case 'stack': {
-      const options = layoutOptions(node, { gap: '16px', align: 'stretch' });
+      const options = layoutOptions(node, { gap: '16px', align: 'stretch' }, ['gap', 'align']);
       return `<div class="forma-stack"${layoutStyle(options, ['gap','align'])}>${layoutContent(node, nested, new Set(['gap','align']))}</div>`;
     }
     case 'row': {
-      const options = layoutOptions(node, { gap: '16px', align: 'center', wrap: true });
+      const options = layoutOptions(node, { gap: '16px', align: 'center', wrap: true }, ['gap', 'align', 'justify', 'wrap']);
       return `<div class="forma-row"${layoutStyle(options, ['gap','align','justify','wrap'])}>${layoutContent(node, nested, new Set(['gap','align','justify','wrap']))}</div>`;
     }
     case 'grid': {
-      const options = layoutOptions(node, { gap: '16px', columns: 3 });
+      const options = layoutOptions(node, { gap: '16px', columns: 3 }, ['gap', 'columns']);
       return `<div class="forma-grid"${layoutStyle(options, ['gap','columns'])}>${layoutContent(node, nested, new Set(['gap','columns']))}</div>`;
     }
     case 'container': {
-      const options = layoutOptions(node, { max: '1120px', padding: '24px' });
+      const options = layoutOptions(node, { max: '1120px', padding: '24px' }, ['max', 'padding']);
       return `<div class="forma-container"${layoutStyle(options, ['max','padding'])}>${layoutContent(node, nested, new Set(['max','padding']))}</div>`;
     }
     case 'spacer': {
