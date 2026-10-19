@@ -343,7 +343,7 @@ test('requires semantic theme references to point to colour tokens', () => {
 });
 
 test('supports component variants, surfaces, and typed design token references', () => {
-  const src = ['site "Styles"','  theme','    token radius card "24px"','    token shadow soft "0 12px 30px #00000022"','    token font display "Inter"','    token size large "32px"','  page "/"','    button "Continue"','      variant "secondary"','      radius "$card"','      shadow "$soft"','      font "$display"','      text-size "$large"','    card','      surface "glass"','      title "Styled card"','      text "Example"'].join('\n');
+  const src = ['site "Styles"','  theme','    token radius card "24px"','    token shadow soft "0 12px 30px #00000022"','    token font display "Inter"','    token size large "32px"','  page "/"','    state count = 0','    button "Continue"','      on click','        set count = count + 1','      variant "secondary"','      radius "$card"','      shadow "$soft"','      font "$display"','      text-size "$large"','    card','      surface "glass"','      title "Styled card"','      text "Example"'].join('\n');
   const result = compile(src);
   assert.match(result.html, /forma-variant-secondary/);
   assert.match(result.html, /border-radius:var\(--forma-radius-card\)/);
