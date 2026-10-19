@@ -27,9 +27,9 @@ try {
   await detailsTab.click();
   await page.getByText('Switch between related views without leaving the page.').waitFor({ state: 'visible' });
 
-  const accordionItem = page.locator('.forma-accordion-item').filter({ hasText: 'What is Forma?' });
+  const accordionItem = page.locator('details').filter({ hasText: 'What is Forma?' });
   await accordionItem.locator('summary').click();
-  assert.equal(await accordionItem.evaluate(element => element.querySelector('details')?.open), true);
+  assert.equal(await accordionItem.evaluate(element => element.open), true);
 
   await page.getByRole('button', { name: 'Preview a dialog' }).click();
   await page.locator('dialog.forma-dialog').waitFor({ state: 'visible' });
