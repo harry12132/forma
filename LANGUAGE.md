@@ -16,6 +16,11 @@ site "My Website"
     accent "#c6f36b"
     muted "#a1a1aa"
     font "Inter"
+    token color primary "#c6f36b"
+    token color surface "#111318"
+    token radius card "22px"
+    token shadow soft "0 18px 60px #00000018"
+    token font display "Inter"
 
   page "/"
     nav
@@ -30,6 +35,18 @@ site "My Website"
       button "Explore" -> "#start"
       animation "fade-up"
 ```
+
+Theme tokens are declared with \`token type name value\`. Supported token types are \`color\`, \`radius\`, \`shadow\`, \`font\`, and \`size\`. Names are lowercase identifiers and must be unique within the theme. Tokens compile to CSS custom properties such as \`--forma-color-primary\` and \`--forma-radius-card\`. Semantic theme colours (\`background\`, \`foreground\`, \`accent\`, and \`muted\`) can reference a colour token using \`"$primary"\`. Values are validated by token type.
+
+\`\`\`forma
+theme
+  token color primary "#c6f36b"
+  token color surface "#111318"
+  token radius card "22px"
+  token shadow soft "0 18px 60px #00000018"
+  token font display "Inter"
+  accent "$primary"
+\`\`\`
 
 ## 2. Indentation and comments
 
