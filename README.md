@@ -2,7 +2,7 @@
 
 Forma is an early-release frontend language. Write `.forma` files; the compiler emits HTML and CSS that run in a browser. This release adds liquid-glass surfaces and ambient visual effects, alongside configurable scroll reveals, hover interactions, design tokens, and a small reactive runtime.
 
-## Requirements
+Forma is released under the [MIT License](./LICENSE). See the [changelog](./CHANGELOG.md) for release notes.\n\n## Requirements
 
 - Node.js 20 or newer
 - No third-party packages required
