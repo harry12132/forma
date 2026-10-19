@@ -27,6 +27,16 @@ site "Forma · Feature Atlas"
       title "{heading}"
       text "{description}"
 
+  component MetricCard
+    prop label string
+    prop metric number 24
+    prop highlighted boolean true
+    card
+      surface "soft"
+      title "{label}"
+      text "Numeric property: {metric}"
+      text "Boolean property: {highlighted}"
+
   page "/"
     state count = 0
     state status = "Ready"
@@ -35,6 +45,12 @@ site "Forma · Feature Atlas"
     state wantsUpdates = false
     state contactMethod = "email"
     state messageText = ""
+    state displayName = ""
+    state demoPassword = ""
+    state demoNumber = ""
+    state demoPhone = ""
+    state demoWebsite = ""
+    state demoChecked = true
 
     nav
       logo "forma."
@@ -78,6 +94,16 @@ site "Forma · Feature Atlas"
       title "01 / Language and page structure"
       text "These are the structural blocks used to describe a site, page, navigation, hero, content, and footer."
       divider
+      cards
+        card
+          title "One language"
+          text "Readable indentation and declarative blocks."
+        card
+          title "One compiler"
+          text "Forma generates HTML and CSS."
+        card
+          title "One showcase"
+          text "The implemented feature set, all in one place."
       grid
         columns 3
         gap "14px"
@@ -183,7 +209,18 @@ site "Forma · Feature Atlas"
         surface "soft"
         title "Property validation"
         text "String, number, and boolean properties are supported. Unknown, repeated, missing required, incorrectly typed, and recursive component calls are rejected by the compiler."
-      text "Property interpolation uses braces, for example: {heading}. Defaults can be supplied in a prop declaration, or a property can be required by omitting its default."
+      grid
+        columns 2
+        gap "14px"
+        MetricCard
+          label "Typed component properties"
+          metric 42
+          highlighted true
+        MetricCard
+          label "Defaults can be overridden"
+          metric 7
+          highlighted false
+      text "Property interpolation uses braces, for example: {heading}. Defaults can be supplied in a prop declaration, or a property can be required by omitting its default. Typed properties support strings, numbers, and booleans."
 
     panel
       title "04 / Design tokens"
@@ -244,6 +281,8 @@ site "Forma · Feature Atlas"
             variant "quiet"
           button "Danger" -> "#playground"
             variant "danger"
+          button "Legacy style syntax" -> "#design"
+            style "secondary"
         divider
         title "Surface variants"
         grid
@@ -508,7 +547,11 @@ site "Forma · Feature Atlas"
           panel
             surface "soft"
             title "Conditional content is visible"
-            text "This block appears when showDetails is true. Equality conditions support string, number, and boolean values."
+            text "This block appears when showDetails is true."
+        when count = 0
+          text "The numeric condition is true because the counter is zero."
+        when status = "Ready"
+          text "The string condition is true because status is Ready."
       text "State supports numbers, booleans, and strings. Current click actions support numeric addition/subtraction and simple assignments, not arbitrary JavaScript expressions."
 
     panel
