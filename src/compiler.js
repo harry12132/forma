@@ -42,6 +42,7 @@ export function parse(source) {
       throw new Error(`Line ${i + 1}: expected indentation of ${stack.at(-1).indent + 2} spaces for a child of '${stack.at(-1).node.name}'.`);
     }
     const node = { name: match[1], args: parseArgs(match[2] || ''), children: [], line: i + 1 };
+    stack.at(-1).node.children.push(node);
     stack.push({ indent, node });
   }
   return root;
