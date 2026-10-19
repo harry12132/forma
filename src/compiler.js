@@ -83,7 +83,7 @@ function coerceComponentProp(raw, schema, line, componentName) {
   if (type === 'string') return String(raw);
   if (type === 'number') {
     if (typeof raw === 'number') return raw;
-    if (!/^-?(?:\d+\\.?\d*|\\.\d+)$/.test(String(raw))) throw new Error(`Line ${line}: property '${name}' on '${componentName}' must be a number, received '${raw}'.`);
+    if (!/^-?(?:\d+\.?\d*|\.\d+)$/.test(String(raw))) throw new Error(`Line ${line}: property '${name}' on '${componentName}' must be a number, received '${raw}'.`);
     const value = Number(raw);
     if (!Number.isFinite(value)) throw new Error(`Line ${line}: property '${name}' must be a finite number.`);
     return value;
