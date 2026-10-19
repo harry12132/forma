@@ -9,6 +9,8 @@ Forma is released under the [MIT License](./LICENSE). See the [changelog](./CHAN
 
 ## Run the showcase
 
+`examples/showcase.forma` is the live feature atlas for the currently implemented language. It demonstrates the built-in elements, layout primitives, reusable typed components, design tokens, variants, materials and effects, every reveal and hover preset, interactive controls, reactive state, conditional rendering, and forms.
+
 ```bash
 npm test
 npm run build
