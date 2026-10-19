@@ -205,7 +205,7 @@ site "Counter"
         set count = count + 1
 ```
 
-Initial state supports numbers, booleans, and quoted strings. The current runtime supports numeric addition/subtraction and simple assignments. It is not a general-purpose expression evaluator; conditional rendering, input binding, loops, and multi-page routing are not implemented.
+Initial state supports numbers, booleans, and quoted strings. The current runtime supports numeric addition/subtraction and simple assignments. It is not a general-purpose expression evaluator. Basic equality-based conditional rendering uses `when state = value`, and named form controls can bind to declared state. Loops and complete multi-page routing are not implemented.
 
 ## 9. Compile and test
 
