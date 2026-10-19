@@ -85,7 +85,28 @@ The current compiler recognises these page elements:
 
 Layout settings are nested as simple child lines, for example `gap "24px"`, `align center`, `justify between`, `wrap true`, `columns 3`, `max "1200px"`, and `padding "24px"`. Sizes accept a limited, validated set of CSS lengths. Grid layouts collapse to one column on small screens.
 
-Supported animation names are `fade-up`, `fade`, and `scale`. Animation effects respect the browser's reduced-motion preference.
+Supported reveal animations are `fade-up`, `fade-down`, `fade-left`, `fade-right`, `fade`, `scale`, `zoom`, and `blur`. An animation can set `duration` (100ms to 3000ms), `delay` (up to 5000ms), and `easing` (`smooth`, `spring`, `snappy`, or `linear`). For example:
+
+```forma
+hero
+  title "Arrive with intent."
+  animation "fade-up"
+    duration "800ms"
+    delay "120ms"
+    easing spring
+```
+
+Cards, panels, and buttons/links can also use `hover` with `lift`, `glow`, `scale`, or `tilt`:
+
+```forma
+card
+  hover "glow"
+  animation "blur"
+    duration "700ms"
+  title "A little depth"
+```
+
+Reveal animations use the browser's Intersection Observer and respect the reduced-motion preference. Hover effects are CSS-only and remain lightweight.
 
 ## 5. Component styling
 
