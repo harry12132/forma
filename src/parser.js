@@ -1,6 +1,6 @@
 export class FormaSyntaxError extends Error {
   constructor(message, line, column = 1) {
-    super(\`Line \${line}, column \${column}: \${message}\`);
+    super(`Line ${line}, column ${column}: ${message}`);
     this.name = 'FormaSyntaxError';
     this.line = line;
     this.column = column;
@@ -78,14 +78,14 @@ export function parse(source) {
 
     const content = raw.slice(indent);
     const match = content.match(/^([\w-]+)(?:\s+(.*))?$/);
-    if (!match) throw new FormaSyntaxError(\`could not parse '\${content}'.\`, i + 1, indent + 1);
+    if (!match) throw new FormaSyntaxError(`could not parse '${content}'.`, i + 1, indent + 1);
 
     while (stack.length > 1 && indent <= stack.at(-1).indent) stack.pop();
     if (stack.length > 1 && indent > stack.at(-1).indent + 2) {
       throw new FormaSyntaxError('indentation jumped too far. Indent each nested block by exactly two spaces.', i + 1, indent + 1);
     }
     if (stack.length > 1 && indent > stack.at(-1).indent && indent !== stack.at(-1).indent + 2) {
-      throw new FormaSyntaxError(\`expected indentation of \${stack.at(-1).indent + 2} spaces for a child of '\${stack.at(-1).node.name}'.\`, i + 1, indent + 1);
+      throw new FormaSyntaxError(`expected indentation of ${stack.at(-1).indent + 2} spaces for a child of '${stack.at(-1).node.name}'.`, i + 1, indent + 1);
     }
 
     const argsRaw = match[2] || '';
