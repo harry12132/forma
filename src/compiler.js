@@ -307,16 +307,15 @@ function renderNode(node, context = {}) {
     }
     case 'card': {
       assertAllowed(node, new Set(['title','text','material','animation','surface','variant','radius','shadow','hover','effect']));
-      const legacyMaterial = children(node, 'material').map(c => arg(c)).find(v => ['glass','liquid-glass'].includes(v));\n      const legacyGlass = legacyMaterial === 'glass';
-      const styled = componentStyle(node, nested, ['surface','variant','radius','shadow','effect']);
+      const legacyMaterial = children(node, 'material').map(c => arg(c)).find(v => ['glass','liquid-glass'].includes(v));\n      const styled = componentStyle(node, nested, ['surface','variant','radius','shadow','effect']);
       if (legacyMaterial && !styled.className.split(' ').some(v => v === 'forma-surface-glass' || v === 'forma-surface-liquid-glass')) styled.className = className(styled.className, 'forma-surface-' + legacyMaterial);
       const anim = children(node, 'animation')[0];
       return `<article class="${escapeHtml(className('card', styled.className))}"${styled.style}${hoverAttribute(node)}${motionAttributes(anim)}>${node.children.filter(c => ['title','text'].includes(c.name)).map(c => renderNode(c, nested)).join('')}</article>`;
     }
     case 'panel': {
-      const legacyGlass = children(node, 'material').some(c => arg(c) === 'glass');
-      const styled = componentStyle(node, nested, ['surface','variant','radius','shadow']);
-      if (legacyGlass && !styled.className.split(' ').includes('forma-surface-glass')) styled.className = className(styled.className, 'forma-surface-glass');
+      const legacyMaterial = children(node, 'material').map(c => arg(c)).find(v => ['glass','liquid-glass'].includes(v));
+      const styled = componentStyle(node, nested, ['surface','variant','radius','shadow','effect']);
+      if (legacyMaterial && !styled.className.split(' ').some(v => v === 'forma-surface-glass' || v === 'forma-surface-liquid-glass')) styled.className = className(styled.className, 'forma-surface-' + legacyMaterial);
       const anim = children(node, 'animation')[0];
       const content = node.children.filter(c => !['material','animation','surface','variant','radius','shadow','hover','effect'].includes(c.name)).map(c => renderNode(c, nested)).join('\\n');
       return `<section class="${escapeHtml(className('panel', styled.className))}"${styled.style}${hoverAttribute(node)}${motionAttributes(anim)}>${content}</section>`;
