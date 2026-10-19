@@ -251,7 +251,7 @@ function motionAttributes(node) {
     if (child.children.length || child.args.length !== 1) throw new Error(`Line ${child.line}: '${child.name}' expects one value.`);
     const value = arg(child);
     if (child.name === 'duration' || child.name === 'delay') {
-      if (!/^(?:0|\\d{1,4})(?:ms|s)$/.test(value)) throw new Error(`Line ${child.line}: ${child.name} must be a whole-number time such as "650ms" or "1s".`);
+      if (!/^(?:0|\d{1,4})(?:ms|s)$/.test(value)) throw new Error(`Line ${child.line}: ${child.name} must be a whole-number time such as "650ms" or "1s".`);
       const amount = Number.parseFloat(value) * (value.endsWith('s') && !value.endsWith('ms') ? 1000 : 1);
       if (amount > (child.name === 'duration' ? 3000 : 5000)) throw new Error(`Line ${child.line}: ${child.name} is too long.`);
     } else if (!['smooth','spring','snappy','linear'].includes(value)) {
