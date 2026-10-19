@@ -127,6 +127,49 @@ function parseLink(node, props = {}) {
   if (node.args.length >= 2) return { label: node.args[0], href: safeUrl(node.args[1]) };
   throw new Error(`Line ${node.line}: '${node.name}' needs a label and a destination, e.g. link "Docs" -> "/docs".`);
 }
+
+function layoutOptions(node, defaults = {}) {
+  const settingNames = ['gap', 'align', 'justify', 'wrap', 'columns', 'max', 'padding'];
+  assertAllowed(node, new Set(settingNames));
+  const result = { ...defaults };
+  for (const key of settingNames) {
+    const setting = one(node, key);
+    if (!setting) continue;
+    if (setting.children.length || setting.args.length !== 1) throw new Error(`Line ${setting.line}: '${key}' expects exactly one value.`);
+    const value = arg(setting);
+    if (['gap', 'padding', 'max'].includes(key)) {
+      const size = checkedLength(value, '');
+      if (!size || ['none', 'auto'].includes(size)) throw new Error(`Line ${setting.line}: '${key}' needs a concrete CSS size.`);
+      result[key] = /^\d+(?:\.\d+)?$/.test(size) ? `${size}px` : size;
+    } else if (key === 'align' || key === 'justify') {
+      const choices = key === 'align' ? ['start', 'center', 'end', 'stretch', 'baseline'] : ['start', 'center', 'end', 'between', 'around', 'evenly'];
+      if (!choices.includes(value)) throw new Error(`Line ${setting.line}: invalid ${key} '${value}'. Use ${choices.join(', ')}.`);
+      result[key] = value;
+    } else if (key === 'wrap') {
+      if (!['true', 'false'].includes(value)) throw new Error(`Line ${setting.line}: 'wrap' must be true or false.`);
+      result.wrap = value === 'true';
+    } else if (key === 'columns') {
+      if (!/^[1-6]$/.test(value)) throw new Error(`Line ${setting.line}: 'columns' must be an integer from 1 to 6.`);
+      result.columns = Number(value);
+    }
+  }
+  return result;
+}
+function layoutStyle(options, keys) {
+  const declarations = [];
+  if (keys.includes('gap') && options.gap) declarations.push(`gap:${options.gap}`);
+  if (keys.includes('align') && options.align) declarations.push(`align-items:${({ start: 'flex-start', center: 'center', end: 'flex-end', stretch: 'stretch', baseline: 'baseline' })[options.align]}`);
+  if (keys.includes('justify') && options.justify) declarations.push(`justify-content:${({ start: 'flex-start', center: 'center', end: 'flex-end', between: 'space-between', around: 'space-around', evenly: 'space-evenly' })[options.justify]}`);
+  if (keys.includes('wrap') && options.wrap) declarations.push('flex-wrap:wrap');
+  if (keys.includes('columns') && options.columns) declarations.push(`--forma-columns:${options.columns}`);
+  if (keys.includes('max') && options.max) declarations.push(`max-width:${options.max}`);
+  if (keys.includes('padding') && options.padding) declarations.push(`padding-inline:${options.padding}`);
+  return declarations.length ? ` style="${escapeHtml(declarations.join(';'))}"` : '';
+}
+function layoutContent(node, context, settingNames) {
+  return node.children.filter(child => !settingNames.has(child.name)).map(child => renderNode(child, context)).join('\\n');
+}
+
 function renderTextTag(node, tag, extra = '', props = {}, states = {}) { return `<${tag}${extra}>${renderBoundText(arg(node), props, states)}</${tag}>`; }
 function renderNode(node, context = {}) {
   const { components = {}, props = {}, states = {}, componentStack = [] } = context;
@@ -168,7 +211,33 @@ function renderNode(node, context = {}) {
       const content = node.children.filter(c => !['material','animation'].includes(c.name)).map(c => renderNode(c, nested)).join('\n');
       return `<section class="panel${glass ? ' glass' : ''}"${anim ? ` data-reveal="${escapeHtml(arg(anim))}"` : ''}>${content}</section>`;
     }
-    case 'cards': return `<div class="cards">${node.children.map(c => renderNode(c, nested)).join('\n')}</div>`;
+    case 'stack': {
+      const options = layoutOptions(node, { gap: '16px', align: 'stretch' });
+      return `<div class="forma-stack"${layoutStyle(options, ['gap','align'])}>${layoutContent(node, nested, new Set(['gap','align']))}</div>`;
+    }
+    case 'row': {
+      const options = layoutOptions(node, { gap: '16px', align: 'center', wrap: true });
+      return `<div class="forma-row"${layoutStyle(options, ['gap','align','justify','wrap'])}>${layoutContent(node, nested, new Set(['gap','align','justify','wrap']))}</div>`;
+    }
+    case 'grid': {
+      const options = layoutOptions(node, { gap: '16px', columns: 3 });
+      return `<div class="forma-grid"${layoutStyle(options, ['gap','columns'])}>${layoutContent(node, nested, new Set(['gap','columns']))}</div>`;
+    }
+    case 'container': {
+      const options = layoutOptions(node, { max: '1120px', padding: '24px' });
+      return `<div class="forma-container"${layoutStyle(options, ['max','padding'])}>${layoutContent(node, nested, new Set(['max','padding']))}</div>`;
+    }
+    case 'spacer': {
+      if (node.children.length || node.args.length !== 1) throw new Error(`Line ${node.line}: spacer expects one size, e.g. spacer "32px".`);
+      const size = checkedLength(arg(node), '');
+      if (!size || ['none', 'auto'].includes(size)) throw new Error(`Line ${node.line}: spacer needs a concrete CSS size.`);
+      return `<div class="forma-spacer" aria-hidden="true" style="height:${escapeHtml(/^\d+(?:\.\d+)?$/.test(size) ? size + 'px' : size)}"></div>`;
+    }
+    case 'divider': {
+      if (node.children.length) throw new Error(`Line ${node.line}: divider cannot contain children.`);
+      return '<hr class="forma-divider">';
+    }
+    case 'cards': return `<div class="cards">${node.children.map(c => renderNode(c, nested)).join('\\n')}</div>`;
     case 'hero': {
       assertAllowed(node, new Set(['badge', 'title', 'text', 'button', 'panel', 'animation']));
       const anim = children(node, 'animation')[0];
@@ -214,7 +283,7 @@ function renderNode(node, context = {}) {
 const CSS = `
 :root{color-scheme:dark;--bg:__BG__;--fg:__FG__;--accent:__ACCENT__;--muted:__MUTED__;--font:__FONT__}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -20%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 55%),var(--bg);color:var(--fg);font-family:var(--font),system-ui,-apple-system,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
-a{color:inherit;text-decoration:none}.shell{max-width:1120px;margin:0 auto;padding:0 28px}.nav{height:84px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff12}.logo{font-weight:750;letter-spacing:-.06em;font-size:22px}.nav nav{display:flex;align-items:center;gap:25px}.nav-link{font-size:13px;color:var(--muted);transition:color .2s}.nav-link:hover{color:var(--fg)}.button{display:inline-flex;align-items:center;gap:16px;padding:12px 17px;border-radius:999px;background:var(--accent);color:#11130c;font-size:13px;font-weight:700;transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s}.button:hover{transform:translateY(-2px) scale(1.015);box-shadow:0 10px 32px color-mix(in srgb,var(--accent) 22%,transparent)}.button:active{transform:scale(.97)}.button span{font-size:16px}.button-secondary{background:#ffffff0b;color:var(--fg);border:1px solid #ffffff20}.hero{padding:116px 0 86px;max-width:850px}.badge{display:inline-flex;padding:7px 11px;border:1px solid #ffffff20;background:#ffffff08;border-radius:999px;color:var(--accent);font-size:11px;font-weight:650;letter-spacing:.06em;text-transform:uppercase}.hero h2,.section-title{font-size:clamp(42px,7vw,82px);line-height:.99;letter-spacing:-.075em;font-weight:600;margin:24px 0}.hero .copy{font-size:clamp(16px,2vw,20px);max-width:590px;line-height:1.7;color:var(--muted);margin:0 0 28px}.hero .button{margin-right:9px}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:16px 0 90px}.card,.panel{border:1px solid #ffffff15;background:linear-gradient(145deg,#ffffff09,#ffffff03);border-radius:22px;padding:26px;min-height:190px;transition:border-color .3s,transform .35s cubic-bezier(.2,.8,.2,1)}.card:hover{transform:translateY(-4px);border-color:#ffffff35}.card h2,.panel h2,.section-title{font-size:23px;letter-spacing:-.045em;margin:0 0 12px}.copy{color:var(--muted);font-size:14px;line-height:1.8;margin:0}.glass{background:linear-gradient(135deg,#ffffff26,#ffffff09 42%,#ffffff12);backdrop-filter:blur(24px) saturate(1.45);-webkit-backdrop-filter:blur(24px) saturate(1.45);border-color:#ffffff35;box-shadow:inset 0 1px 0 #ffffff45,0 18px 60px #00000018;position:relative;overflow:hidden}.glass:before{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,#ffffff80,transparent);pointer-events:none}.footer{border-top:1px solid #ffffff12;padding:28px 0 38px;color:var(--muted);font-size:12px}.footer .copy{font-size:12px}.reveal{opacity:0;transform:translateY(18px);transition:opacity .65s ease,transform .65s cubic-bezier(.2,.8,.2,1)}.reveal.is-visible{opacity:1;transform:translateY(0)}[data-reveal="fade"]{transform:none}[data-reveal="fade-up"]{transform:translateY(18px)}[data-reveal="scale"]{transform:scale(.97)}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none}}@media(max-width:700px){.shell{padding:0 19px}.nav{height:70px}.nav nav{gap:12px}.nav nav .nav-link:nth-of-type(n+3){display:none}.nav .button{padding:10px 12px}.hero{padding:86px 0 58px}.cards{grid-template-columns:1fr;padding-bottom:55px}.card{min-height:unset}.hero h2{font-size:clamp(43px,12vw,66px)}}
+a{color:inherit;text-decoration:none}.shell{max-width:1120px;margin:0 auto;padding:0 28px}.nav{height:84px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff12}.logo{font-weight:750;letter-spacing:-.06em;font-size:22px}.nav nav{display:flex;align-items:center;gap:25px}.nav-link{font-size:13px;color:var(--muted);transition:color .2s}.nav-link:hover{color:var(--fg)}.button{display:inline-flex;align-items:center;gap:16px;padding:12px 17px;border-radius:999px;background:var(--accent);color:#11130c;font-size:13px;font-weight:700;transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s}.button:hover{transform:translateY(-2px) scale(1.015);box-shadow:0 10px 32px color-mix(in srgb,var(--accent) 22%,transparent)}.button:active{transform:scale(.97)}.button span{font-size:16px}.button-secondary{background:#ffffff0b;color:var(--fg);border:1px solid #ffffff20}.hero{padding:116px 0 86px;max-width:850px}.badge{display:inline-flex;padding:7px 11px;border:1px solid #ffffff20;background:#ffffff08;border-radius:999px;color:var(--accent);font-size:11px;font-weight:650;letter-spacing:.06em;text-transform:uppercase}.hero h2,.section-title{font-size:clamp(42px,7vw,82px);line-height:.99;letter-spacing:-.075em;font-weight:600;margin:24px 0}.hero .copy{font-size:clamp(16px,2vw,20px);max-width:590px;line-height:1.7;color:var(--muted);margin:0 0 28px}.hero .button{margin-right:9px}.forma-stack{display:flex;flex-direction:column;gap:16px}.forma-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.forma-grid{display:grid;grid-template-columns:repeat(var(--forma-columns,3),minmax(0,1fr));gap:16px}.forma-container{width:100%;margin-inline:auto}.forma-spacer{width:100%;pointer-events:none}.forma-divider{border:0;border-top:1px solid #ffffff20;width:100%;margin:0}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:16px 0 90px}.card,.panel{border:1px solid #ffffff15;background:linear-gradient(145deg,#ffffff09,#ffffff03);border-radius:22px;padding:26px;min-height:190px;transition:border-color .3s,transform .35s cubic-bezier(.2,.8,.2,1)}.card:hover{transform:translateY(-4px);border-color:#ffffff35}.card h2,.panel h2,.section-title{font-size:23px;letter-spacing:-.045em;margin:0 0 12px}.copy{color:var(--muted);font-size:14px;line-height:1.8;margin:0}.glass{background:linear-gradient(135deg,#ffffff26,#ffffff09 42%,#ffffff12);backdrop-filter:blur(24px) saturate(1.45);-webkit-backdrop-filter:blur(24px) saturate(1.45);border-color:#ffffff35;box-shadow:inset 0 1px 0 #ffffff45,0 18px 60px #00000018;position:relative;overflow:hidden}.glass:before{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,#ffffff80,transparent);pointer-events:none}.footer{border-top:1px solid #ffffff12;padding:28px 0 38px;color:var(--muted);font-size:12px}.footer .copy{font-size:12px}.reveal{opacity:0;transform:translateY(18px);transition:opacity .65s ease,transform .65s cubic-bezier(.2,.8,.2,1)}.reveal.is-visible{opacity:1;transform:translateY(0)}[data-reveal="fade"]{transform:none}[data-reveal="fade-up"]{transform:translateY(18px)}[data-reveal="scale"]{transform:scale(.97)}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none}}@media(max-width:700px){.shell{padding:0 19px}.nav{height:70px}.nav nav{gap:12px}.nav nav .nav-link:nth-of-type(n+3){display:none}.nav .button{padding:10px 12px}.hero{padding:86px 0 58px}.cards{grid-template-columns:1fr;padding-bottom:55px}.card{min-height:unset}.hero h2{font-size:clamp(43px,12vw,66px)}}
 `;
 
 export function compile(source) {
@@ -236,7 +305,7 @@ export function compile(source) {
   }
   const theme = getTheme(one(site, 'theme'));
   const page = one(site, 'page', true);
-  const builtinBlocks = new Set(['nav','hero','cards','panel','footer','state','title','text','badge','link','button','card']);
+  const builtinBlocks = new Set(['nav','hero','cards','panel','footer','state','title','text','badge','link','button','card','stack','row','grid','container','spacer','divider']);
   for (const child of page.children) if (!builtinBlocks.has(child.name) && !components[child.name]) throw new Error(`Line ${child.line}: unknown '${child.name}' inside 'page'.`);
   const states = {};
   for (const declaration of children(page, 'state')) {
