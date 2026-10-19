@@ -308,3 +308,36 @@ test('rejects invalid layout alignment values', () => {
   const src = ['site "Bad alignment"', '  page "/"', '    row', '      align diagonal', '      text "Nope"'].join('\n');
   assert.throws(() => compile(src), /invalid align 'diagonal'/);
 });
+
+
+test('compiles reusable design tokens and resolves semantic theme colours', () => {
+  const src = [
+    'site "Token system"',
+    '  theme',
+    '    token color lime "#c6f36b"',
+    '    token radius card "24px"',
+    '    token shadow soft "0 18px 60px #00000018"',
+    '    token font display "Inter"',
+    '    accent "$lime"',
+    '  page "/"',
+    '    title "Token-powered"'
+  ].join('\n');
+  const result = compile(src);
+  assert.match(result.css, /--forma-color-lime:#c6f36b/);
+  assert.match(result.css, /--forma-radius-card:24px/);
+  assert.match(result.css, /--forma-shadow-soft:0 18px 60px #00000018/);
+  assert.match(result.css, /--forma-font-display:'Inter'/);
+  assert.match(result.css, /--accent:#c6f36b/);
+});
+
+test('rejects duplicate and invalid design tokens', () => {
+  const duplicate = ['site "X"', '  theme', '    token color primary "#fff"', '    token radius primary "8px"', '  page "/"'].join('\n');
+  assert.throws(() => compile(duplicate), /token 'primary' is declared more than once/);
+  const badType = ['site "X"', '  theme', '    token gradient rainbow "red"', '  page "/"'].join('\n');
+  assert.throws(() => compile(badType), /token type must be color, radius, shadow, font, or size/);
+});
+
+test('requires semantic theme references to point to colour tokens', () => {
+  const src = ['site "X"', '  theme', '    token radius card "8px"', '    accent "$card"', '  page "/"'].join('\n');
+  assert.throws(() => compile(src), /must reference a declared color token/);
+});
