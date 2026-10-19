@@ -6,6 +6,12 @@ site "Forma Studio"
     accent "#c6f36b"
     muted "#a1a1aa"
     font "Inter"
+    token color lime "#c6f36b"
+    token color surface "#111318"
+    token radius card "22px"
+    token shadow soft "0 18px 60px #00000018"
+    token font display "Inter"
+    accent "$lime"
 
   component FeatureCard
     prop heading "A thoughtful detail"

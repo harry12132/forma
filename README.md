@@ -74,6 +74,7 @@ The parser lives in `src/parser.js` and produces a source-located syntax tree. T
 - `material "glass"`
 - `animation "fade-up"`, `animation "fade"`, and `animation "scale"`
 - Layout primitives with validated spacing, alignment, wrapping, and responsive grids
+- Named design tokens for colours, radii, shadows, font families, and sizes, exposed as CSS custom properties; semantic theme colours can reference colour tokens
 - Responsive styling, hover/press feedback, scroll reveals, and reduced-motion handling
 
 ## Scope and roadmap
