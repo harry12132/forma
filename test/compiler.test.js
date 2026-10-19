@@ -147,7 +147,7 @@ test('rejects odd indentation widths', () => {
 test('rejects a child block indented by more than two spaces', () => {
   assert.throws(
     () => parse('site "X"\n  page "/"\n      title "Hello"'),
-    /Line 3: indentation jumped too far/
+    /Line 3, column 7: indentation jumped too far/
   );
 });
 
