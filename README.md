@@ -62,6 +62,10 @@ A component's property defaults are used when an instance does not provide that 
 
 The initial syntax rules and supported block conventions are documented in [LANGUAGE.md](./LANGUAGE.md). The compiler reports source line numbers for syntax and validation errors where available.
 
+## Compiler architecture
+
+The parser lives in `src/parser.js` and produces a source-located syntax tree. The compiler in `src/compiler.js` validates and renders that tree into HTML and CSS. Syntax errors report line and column numbers; semantic validation errors report line numbers where available. The project uses GitHub Actions to run tests and build both shipped examples on Node.js 20 and 22.
+
 ## Existing features
 
 - `site`, `theme`, `page`
