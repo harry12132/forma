@@ -1,29 +1,2221 @@
+
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#09090b">
-<title>Forma Studio</title>
-<link rel="stylesheet" href="./style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#09090b">
+  <meta name="description" content="Explore Forma, an expressive frontend language for building beautiful interfaces.">
+  <title>Forma Studio | Feature Atlas</title>
+
+  <style>
+    /* =========================================================
+       FORMA STUDIO
+       Design tokens and global foundation
+    ========================================================= */
+
+    :root {
+      color-scheme: dark;
+      --background: #09090b;
+      --surface: #111114;
+      --surface-raised: #18181d;
+      --surface-soft: #202025;
+      --text: #f4f4f5;
+      --muted: #a1a1aa;
+      --subtle: #71717a;
+      --border: rgba(255,255,255,.11);
+      --accent: #c5f467;
+      --accent-ink: #171a10;
+      --blue: #9cbaff;
+      --purple: #c7a7ff;
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-xl: 32px;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --content-width: 1180px;
+      --ease: cubic-bezier(.2,.75,.25,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 100px;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 50% -20%, rgba(197,244,103,.09), transparent 45%),
+        var(--background);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, textarea, select { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button { color: inherit; }
+    a { color: inherit; text-decoration: none; }
+    button:focus-visible, a:focus-visible, input:focus-visible,
+    textarea:focus-visible, select:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+    }
+
+    ::selection { background: var(--accent); color: var(--accent-ink); }
+
+    .shell {
+      width: min(calc(100% - 40px), var(--content-width));
+      margin-inline: auto;
+    }
+
+    .muted { color: var(--muted); }
+    .subtle { color: var(--subtle); }
+    .accent { color: var(--accent); }
+    .blue { color: var(--blue); }
+    .purple { color: var(--purple); }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 18px;
+      height: 1px;
+      background: currentColor;
+    }
+
+    h1, h2, h3, h4, p { margin-top: 0; }
+
+    h1, h2, h3, h4 {
+      letter-spacing: -.045em;
+      line-height: 1.12;
+    }
+
+    h1 {
+      max-width: 900px;
+      margin: 24px auto;
+      font-size: clamp(48px, 8vw, 94px);
+      font-weight: 650;
+      letter-spacing: -.075em;
+      line-height: .99;
+    }
+
+    h2 { font-size: clamp(27px, 4vw, 42px); font-weight: 620; }
+    h3 { font-size: 20px; font-weight: 620; }
+    h4 { font-size: 15px; font-weight: 650; }
+
+    .gradient-text {
+      color: var(--accent);
+      background: linear-gradient(110deg, #e6ffb6, #c5f467 45%, #91c95b);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .lead {
+      max-width: 670px;
+      margin-inline: auto;
+      color: var(--muted);
+      font-size: clamp(16px, 2vw, 19px);
+      line-height: 1.8;
+    }
+
+    .small { font-size: 12px; }
+    .tiny { font-size: 10px; }
+
+    .section {
+      padding-block: 100px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 38px;
+    }
+
+    .section-heading h2 { margin: 13px 0 10px; }
+    .section-heading p { max-width: 530px; margin-bottom: 0; color: var(--muted); }
+
+    .center { text-align: center; }
+    .center .section-heading { display: block; }
+    .center .section-heading p { margin-inline: auto; }
+
+    .hero {
+      position: relative;
+      padding: 115px 0 100px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      position: absolute;
+      z-index: -1;
+      top: 80px;
+      left: 50%;
+      width: 540px;
+      height: 340px;
+      content: "";
+      background: rgba(197,244,103,.065);
+      filter: blur(100px);
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 11px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255,255,255,.035);
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    /* Navigation */
+
+    .nav-wrap {
+      position: sticky;
+      z-index: 50;
+      top: 0;
+      border-bottom: 1px solid var(--border);
+      background: rgba(9,9,11,.83);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 70px;
+      gap: 24px;
+    }
+
+    .logo {
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: -.08em;
+    }
+
+    .logo span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 23px;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      font-size: 12px;
+      transition: color .2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .menu-toggle {
+      display: none;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    /* Buttons */
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 42px;
+      padding: 10px 17px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      background: var(--accent);
+      color: var(--accent-ink);
+      font-size: 12px;
+      font-weight: 750;
+      cursor: pointer;
+      transition: transform .2s var(--ease), background .2s, border-color .2s;
+    }
+
+    .button:hover { transform: translateY(-2px); background: #d6ff91; }
+    .button:active { transform: scale(.98); }
+
+    .button-secondary {
+      border-color: var(--border);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+    }
+
+    .button-secondary:hover { background: rgba(255,255,255,.09); }
+
+    .button-quiet { background: transparent; color: var(--text); }
+    .button-small { min-height: 33px; padding: 6px 11px; font-size: 11px; }
+    .button:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+    /* Panels, cards and layout primitives */
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .stack { display: flex; flex-direction: column; gap: 14px; }
+    .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .row-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .container-demo { width: min(100%, 500px); margin-inline: auto; }
+    .spacer { height: 26px; }
+    .divider { height: 1px; width: 100%; background: var(--border); margin-block: 18px; }
+
+    .panel, .card {
+      min-width: 0;
+      padding: 23px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+    }
+
+    .card { border-radius: var(--radius-md); }
+    .card h3, .panel h3 { margin-bottom: 9px; }
+    .card p, .panel p { color: var(--muted); }
+    .card p:last-child, .panel p:last-child { margin-bottom: 0; }
+
+    .soft { background: var(--surface-raised); }
+    .surface-light { background: #e8e9e5; color: #151515; }
+    .surface-light p { color: #62645e; }
+
+    .demo-stage {
+      min-width: 0;
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.045), transparent 75%),
+        #0d0d10;
+    }
+
+    .demo-label {
+      display: block;
+      margin-bottom: 15px;
+      color: var(--subtle);
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .sample-box {
+      display: grid;
+      min-height: 56px;
+      place-items: center;
+      border: 1px solid rgba(197,244,103,.2);
+      border-radius: 10px;
+      background: rgba(197,244,103,.07);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    .sample-box.blue-box {
+      border-color: rgba(156,186,255,.25);
+      background: rgba(156,186,255,.08);
+      color: var(--blue);
+    }
+
+    .sample-box.purple-box {
+      border-color: rgba(199,167,255,.25);
+      background: rgba(199,167,255,.08);
+      color: var(--purple);
+    }
+
+    /* Code blocks */
+
+    .code-card {
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: #0c0c0f;
+    }
+
+    .code-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 15px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .window-dots { display: flex; gap: 5px; }
+    .window-dots i { width: 7px; height: 7px; border-radius: 50%; background: #414147; }
+
+    pre {
+      max-width: 100%;
+      margin: 0;
+      padding: 19px;
+      overflow: auto;
+      color: #d4d4d8;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 11px;
+      line-height: 1.85;
+      tab-size: 2;
+    }
+
+    .kw { color: #c5f467; }
+    .str { color: #e4bd91; }
+    .comment { color: #777780; }
+    .type { color: #9cbaff; }
+    .fn { color: #d2b5ff; }
+
+    /* Design tokens */
+
+    .token-list { display: grid; gap: 11px; }
+
+    .token-row {
+      display: grid;
+      grid-template-columns: 1fr auto 55px;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,.02);
+      font-family: monospace;
+      font-size: 11px;
+    }
+
+    .swatch { width: 38px; height: 24px; border: 1px solid var(--border); border-radius: 6px; }
+    .token-value { color: var(--muted); text-align: right; }
+
+    /* Variants */
+
+    .variant-button { min-width: 90px; }
+    .variant-outline { border-color: var(--accent); background: transparent; color: var(--accent); }
+    .variant-soft { background: rgba(197,244,103,.12); color: var(--accent); }
+    .variant-danger { background: #ff7373; color: #1d0909; }
+    .variant-neutral { background: #e4e4e7; color: #18181b; }
+    .variant-ghost { border-color: var(--border); background: transparent; color: var(--text); }
+
+    .metric {
+      font-size: 37px;
+      font-weight: 700;
+      letter-spacing: -.07em;
+    }
+
+    .metric-label { color: var(--muted); font-size: 11px; }
+    .metric-highlight { border-color: rgba(197,244,103,.35); background: rgba(197,244,103,.055); }
+
+    /* Glass and material effects */
+
+    .glass {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.17);
+      background: linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.025));
+      backdrop-filter: blur(22px) saturate(135%);
+      -webkit-backdrop-filter: blur(22px) saturate(135%);
+    }
+
+    .glass::before {
+      position: absolute;
+      top: 0;
+      right: 12%;
+      left: 12%;
+      height: 1px;
+      content: "";
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+      pointer-events: none;
+    }
+
+    .material-stage {
+      position: relative;
+      display: grid;
+      min-height: 225px;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background:
+        radial-gradient(circle at 20% 25%, rgba(197,244,103,.25), transparent 28%),
+        radial-gradient(circle at 80% 70%, rgba(142,120,255,.25), transparent 30%),
+        radial-gradient(circle at 55% 10%, rgba(85,153,255,.2), transparent 34%),
+        #111116;
+    }
+
+    .material-card {
+      width: min(82%, 260px);
+      padding: 22px;
+      border-radius: 20px;
+      text-align: left;
+    }
+
+    .material-card h3 { margin: 0 0 8px; }
+    .material-card p { margin: 0; color: #d4d4d8; font-size: 12px; }
+
+    .reflection {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .reflection::after {
+      position: absolute;
+      top: -90%;
+      left: -50%;
+      width: 40%;
+      height: 280%;
+      content: "";
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
+      transform: rotate(30deg);
+      transition: left .7s var(--ease);
+      pointer-events: none;
+    }
+
+    .reflection:hover::after { left: 125%; }
+
+    .aurora {
+      background:
+        radial-gradient(ellipse at 20% 10%, rgba(197,244,103,.2), transparent 45%),
+        radial-gradient(ellipse at 85% 90%, rgba(150,110,255,.2), transparent 45%),
+        linear-gradient(145deg, #1a1a21, #101014);
+    }
+
+    .border-glow {
+      border-color: rgba(197,244,103,.65);
+      box-shadow: 0 0 0 1px rgba(197,244,103,.07), 0 0 30px rgba(197,244,103,.09);
+    }
+
+    .effect-card { min-height: 160px; display: flex; flex-direction: column; justify-content: end; }
+
+    /* Hover presets */
+
+    .hover-demo {
+      transition: transform .28s var(--ease), box-shadow .28s var(--ease), border-color .28s;
+      cursor: pointer;
+    }
+
+    .hover-lift:hover { transform: translateY(-6px); }
+    .hover-glow:hover { border-color: rgba(197,244,103,.65); box-shadow: 0 0 28px rgba(197,244,103,.12); }
+    .hover-scale:hover { transform: scale(1.035); }
+    .hover-tilt:hover { transform: perspective(600px) rotateX(3deg) rotateY(-3deg); }
+    .hover-none:hover { transform: none; box-shadow: none; }
+
+    /* Motion */
+
+    [data-reveal] { opacity: 1; }
+
+    .js [data-reveal] {
+      opacity: 0;
+      transition: opacity .65s var(--ease), transform .65s var(--ease), filter .65s var(--ease);
+    }
+
+    .js [data-reveal="fade-up"] { transform: translateY(22px); }
+    .js [data-reveal="fade-down"] { transform: translateY(-22px); }
+    .js [data-reveal="fade-left"] { transform: translateX(22px); }
+    .js [data-reveal="fade-right"] { transform: translateX(-22px); }
+    .js [data-reveal="scale"] { transform: scale(.94); }
+    .js [data-reveal="zoom"] { transform: scale(.86); }
+    .js [data-reveal="blur"] { filter: blur(10px); }
+    .js [data-reveal="fade"] { transform: none; }
+
+    .js [data-reveal].is-visible { opacity: 1; transform: none; filter: none; }
+
+    .motion-tile {
+      display: grid;
+      min-height: 108px;
+      place-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface);
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .motion-tile span { color: var(--muted); font-size: 10px; }
+    .motion-tile b { font-size: 12px; }
+
+    /* Interactive components */
+
+    .accordion-item { border-bottom: 1px solid var(--border); }
+    .accordion-item:first-child { border-top: 1px solid var(--border); }
+
+    .accordion-trigger {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 0;
+      border: 0;
+      background: transparent;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .accordion-trigger span:last-child { color: var(--accent); transition: transform .2s; }
+    .accordion-trigger[aria-expanded="true"] span:last-child { transform: rotate(45deg); }
+
+    .accordion-content { padding: 0 0 18px; color: var(--muted); font-size: 13px; }
+    .accordion-content[hidden] { display: none; }
+
+    .tabs-list {
+      display: flex;
+      gap: 5px;
+      padding: 5px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #0b0b0e;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px 12px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .tab[aria-selected="true"] { background: #27272a; color: var(--text); }
+
+    .tab-panel { padding: 22px 0 4px; }
+    .tab-panel[hidden] { display: none; }
+
+    .tooltip-wrap { position: relative; display: inline-flex; }
+
+    .tooltip {
+      position: absolute;
+      z-index: 5;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      width: max-content;
+      max-width: 220px;
+      padding: 8px 11px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #242428;
+      color: var(--text);
+      font-size: 11px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 4px);
+      transition: opacity .18s, transform .18s;
+    }
+
+    .tooltip-wrap:hover .tooltip,
+    .tooltip-wrap:focus-within .tooltip {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .dropdown { position: relative; display: inline-block; }
+
+    .dropdown-menu {
+      position: absolute;
+      z-index: 10;
+      top: calc(100% + 7px);
+      left: 0;
+      min-width: 180px;
+      padding: 5px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #17171b;
+      box-shadow: 0 18px 50px rgba(0,0,0,.4);
+    }
+
+    .dropdown-menu[hidden] { display: none; }
+
+    .dropdown-menu button {
+      width: 100%;
+      padding: 9px 10px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      text-align: left;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .dropdown-menu button:hover { background: rgba(255,255,255,.07); }
+
+    dialog {
+      width: min(480px, calc(100% - 30px));
+      padding: 0;
+      border: 1px solid rgba(255,255,255,.17);
+      border-radius: 22px;
+      background: #151519;
+      color: var(--text);
+      box-shadow: 0 30px 100px rgba(0,0,0,.65);
+    }
+
+    dialog::backdrop { background: rgba(0,0,0,.72); backdrop-filter: blur(8px); }
+
+    .modal-content { padding: 28px; }
+    .modal-content h3 { margin-bottom: 10px; }
+    .modal-content p { color: var(--muted); }
+
+    /* State */
+
+    .state-display {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: #101014;
+    }
+
+    .state-number {
+      font-size: 60px;
+      font-weight: 650;
+      letter-spacing: -.08em;
+      line-height: 1;
+    }
+
+    .state-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 9px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .state-indicator::before {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      content: "";
+    }
+
+    .conditional-box {
+      padding: 16px;
+      border: 1px solid rgba(197,244,103,.2);
+      border-radius: 12px;
+      background: rgba(197,244,103,.05);
+    }
+
+    .conditional-box[hidden] { display: none; }
+
+    /* Forms */
+
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+    .field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+    .field-full { grid-column: 1 / -1; }
+
+    .field label { font-size: 11px; font-weight: 650; }
+    .field-hint { color: var(--subtle); font-size: 10px; }
+
+    .control {
+      width: 100%;
+      min-height: 43px;
+      padding: 11px 12px;
+      border: 1px solid #35353d;
+      border-radius: 10px;
+      background: #0b0b0e;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .control::placeholder { color: #686872; }
+    .control:focus { border-color: var(--accent); outline: none; }
+    textarea.control { min-height: 100px; resize: vertical; }
+
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .checkbox-row input { accent-color: var(--accent); margin-top: 5px; }
+
+    .success-message {
+      padding: 15px;
+      border: 1px solid rgba(197,244,103,.28);
+      border-radius: 12px;
+      background: rgba(197,244,103,.07);
+      color: var(--accent);
+      font-size: 12px;
+    }
+
+    .success-message[hidden] { display: none; }
+
+    /* Feature index */
+
+    .feature-list { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,.02);
+    }
+
+    .feature-check {
+      display: grid;
+      flex: 0 0 22px;
+      width: 22px;
+      height: 22px;
+      place-items: center;
+      border-radius: 7px;
+      background: rgba(197,244,103,.1);
+      color: var(--accent);
+      font-size: 11px;
+    }
+
+    .feature-item b { display: block; font-size: 12px; }
+    .feature-item small { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+
+    .notice {
+      padding: 15px 17px;
+      border-left: 2px solid var(--accent);
+      border-radius: 0 10px 10px 0;
+      background: rgba(197,244,103,.045);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .footer {
+      padding: 40px 0 55px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+
+    /* Responsive */
+
+    @media (max-width: 850px) {
+      .grid-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .section { padding-block: 75px; }
+      .nav-links { gap: 13px; }
+      .nav-links a { font-size: 11px; }
+    }
+
+    @media (max-width: 620px) {
+      .shell { width: min(calc(100% - 28px), var(--content-width)); }
+      .hero { padding: 85px 0 70px; }
+      .section { padding-block: 60px; }
+      .grid, .grid-2, .grid-4, .form-grid, .feature-list { grid-template-columns: 1fr; }
+      .field-full { grid-column: auto; }
+      .section-heading { display: block; }
+      .section-heading > .pill { margin-top: 12px; }
+      .nav { min-height: 62px; }
+      .menu-toggle { display: inline-flex; }
+      .nav-links {
+        position: absolute;
+        top: calc(100% + 1px);
+        right: 0;
+        left: 0;
+        display: none;
+        align-items: stretch;
+        padding: 15px 20px 20px;
+        border-bottom: 1px solid var(--border);
+        background: #0c0c0f;
+      }
+      .nav-links.open { display: flex; flex-direction: column; }
+      .nav-links a { padding: 8px 0; font-size: 13px; }
+      .nav-links .button { align-self: flex-start; padding-inline: 15px; }
+      .state-display { align-items: flex-start; flex-direction: column; }
+      .footer-inner { align-items: flex-start; flex-direction: column; }
+      .panel, .card, .demo-stage { padding: 17px; }
+      pre { font-size: 10px; padding: 15px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+      .js [data-reveal] { opacity: 1; transform: none; filter: none; }
+    }
+  </style>
 </head>
+
 <body>
-<main class="shell">
-<header class="nav"><a class="logo" href="/">forma.</a><nav aria-label="Main navigation"><a class="nav-link" href="#language">Language</a><a class="nav-link" href="#motion">Motion</a><a class="button" href="#start">Get started<span aria-hidden="true">↗</span></a></nav></header>
-<section class="hero" data-reveal="fade-up"><span class="badge">A new language for the frontend</span>
-<h2 class="section-title">Interfaces, with feeling.</h2>
-<p class="copy">Forma brings expressive materials, thoughtful motion, and a clean way to build the web into one small language.</p>
-<a class="button" href="#system">Explore the system<span aria-hidden="true">↗</span></a>
-<a class="button button-secondary" href="#language">Read the vision<span aria-hidden="true">↗</span></a></section>
-<section class="panel glass" data-reveal="scale"><h2 class="section-title">A calmer way to build.</h2>
-<p class="copy">Describe the experience. Forma handles the browser details. This glass surface is generated by the compiler using native CSS effects.</p></section>
-<div class="cards"><article class="card glass" data-reveal="fade-up"><h2 class="section-title">Forma Motion</h2><p class="copy">Soft reveals, responsive hover states, and reduced-motion support built into the generated page.</p></article>
-<article class="card glass" data-reveal="fade-up"><h2 class="section-title">Forma Materials</h2><p class="copy">Translucent glass, layered surfaces, subtle highlights, and depth without a pile of hand-written CSS.</p></article>
-<article class="card glass" data-reveal="fade-up"><h2 class="section-title">Forma Style</h2><p class="copy">A coherent visual foundation with design tokens, responsive layouts, and useful defaults.</p></article></div>
-<section class="panel" data-reveal="fade-up"><h2 class="section-title">Small syntax. Real output.</h2>
-<p class="copy">Forma compiles to ordinary HTML and CSS today. Next, we will expand the parser, add tests, and build a proper component and interaction model.</p></section>
-<footer class="footer"><p class="copy">Forma is an experimental open-source language project. Built for the details.</p></footer>
-</main>
-<script>document.documentElement.classList.add('js');const items=document.querySelectorAll('[data-reveal]');items.forEach(el=>el.classList.add('reveal'));if('IntersectionObserver'in window&&!matchMedia('(prefers-reduced-motion: reduce)').matches){const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-visible');io.unobserve(e.target)}}),{threshold:.12});items.forEach(el=>io.observe(el))}else{items.forEach(el=>el.classList.add('is-visible'))}const state={};function renderState(){document.querySelectorAll('[data-forma-bind]').forEach(el=>{const key=el.getAttribute('data-forma-bind');el.textContent=String(state[key])})}document.addEventListener('click',event=>{const button=event.target.closest('[data-forma-action]');if(!button)return;for(const action of button.dataset.formaAction.split('|')){const [kind,key,raw]=action.split(':');if(!(key in state))continue;if(kind==='add')state[key]=Number(state[key])+Number(raw);else if(kind==='subtract')state[key]=Number(state[key])-Number(raw);else if(kind==='assign'){try{state[key]=JSON.parse(decodeURIComponent(raw))}catch{}}}renderState()});renderState()</script>
+  <div class="nav-wrap">
+    <header class="nav shell">
+      <a class="logo" href="#top" aria-label="Forma home">forma<span>.</span></a>
+
+      <button class="menu-toggle" id="menuToggle" aria-expanded="false"
+        aria-controls="navLinks" aria-label="Toggle navigation">Menu</button>
+
+      <nav class="nav-links" id="navLinks" aria-label="Main navigation">
+        <a href="#language">Language</a>
+        <a href="#layouts">Layouts</a>
+        <a href="#materials">Materials</a>
+        <a href="#motion">Motion</a>
+        <a href="#interactions">Components</a>
+        <a href="#forms">Forms</a>
+        <a class="button button-small" href="#feature-index">Feature index ↗</a>
+      </nav>
+    </header>
+  </div>
+
+  <main id="top">
+    <!-- =======================================================
+         HERO
+    ======================================================== -->
+    <section class="hero shell" data-reveal="fade-up">
+      <span class="pill"><span class="pill-dot"></span> Forma 1.0 · Feature Atlas</span>
+      <h1>Interfaces,<br><span class="gradient-text">with feeling.</span></h1>
+      <p class="lead">
+        One small language for expressive interfaces.
+        Explore the syntax, materials, motion, layouts and interactions
+        that make up the Forma frontend toolkit.
+      </p>
+
+      <div class="hero-actions">
+        <a class="button" href="#layouts">Explore the system <span aria-hidden="true">↗</span></a>
+        <a class="button button-secondary" href="#language">Read the language</a>
+      </div>
+
+      <div class="row" style="justify-content:center; margin-top:30px">
+        <span class="pill">HTML + CSS output</span>
+        <span class="pill">Design tokens</span>
+        <span class="pill">Accessible interactions</span>
+        <span class="pill">Reduced motion</span>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         01 LANGUAGE
+    ======================================================== -->
+    <section class="section" id="language">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">01 · The language</span>
+            <h2>Less ceremony.<br>More interface.</h2>
+            <p>Forma source describes a page. The compiler turns that description into browser-ready HTML and CSS.</p>
+          </div>
+          <span class="pill">Declarative syntax</span>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="code-card">
+            <div class="code-top">
+              <span>hello.forma</span>
+              <span>Forma source</span>
+            </div>
+            <pre><code><span class="kw">site</span> <span class="str">"Forma Studio"</span>
+
+  <span class="kw">theme</span>
+    color <span class="str">"#c5f467"</span>
+
+  <span class="kw">page</span> <span class="str">"/"</span>
+    <span class="kw">stack</span> gap=<span class="str">"24px"</span>
+      <span class="kw">badge</span> <span class="str">"MADE WITH FORMA"</span>
+      <span class="kw">title</span> <span class="str">"Interfaces, with feeling."</span>
+      <span class="kw">text</span> <span class="str">"A new way to build."</span>
+      <span class="kw">button</span> <span class="str">"Explore"</span>
+        href=<span class="str">"#features"</span></code></pre>
+          </div>
+
+          <div class="panel glass" style="display:flex; flex-direction:column; justify-content:center; min-height:300px">
+            <span class="eyebrow">Compiled preview</span>
+            <h2 style="font-size:36px; margin:20px 0 12px">A new way<br>to build.</h2>
+            <p class="muted">Readable source. Familiar browser output. A visual system that stays coherent.</p>
+            <div class="row" style="margin-top:10px">
+              <button class="button" onclick="showToast('This preview is generated HTML.')">Explore</button>
+              <span class="pill">Generated output</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-3" style="margin-top:16px">
+          <article class="card">
+            <span class="eyebrow">Parse</span>
+            <h3 style="margin-top:15px">Structure</h3>
+            <p class="small">Indented source becomes a structured representation of the interface.</p>
+          </article>
+          <article class="card">
+            <span class="eyebrow">Validate</span>
+            <h3 style="margin-top:15px">Catch mistakes</h3>
+            <p class="small">Component props and supported syntax can be checked before output.</p>
+          </article>
+          <article class="card">
+            <span class="eyebrow">Compile</span>
+            <h3 style="margin-top:15px">Ship output</h3>
+            <p class="small">The current compiler generates HTML and CSS for the browser.</p>
+          </article>
+        </div>
+
+        <div class="notice" style="margin-top:18px">
+          This is an illustrative source example. The actual compiler determines which syntax is valid.
+          The browser previews on this page are HTML demonstrations, not a live Forma compiler.
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         02 LAYOUTS
+    ======================================================== -->
+    <section class="section" id="layouts">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">02 · Layout primitives</span>
+            <h2>Structure, without the struggle.</h2>
+            <p>Build common layouts with purpose-built primitives instead of repeating raw layout code.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <article class="demo-stage">
+            <span class="demo-label">stack · Vertical flow</span>
+            <div class="stack">
+              <div class="sample-box">Item one</div>
+              <div class="sample-box">Item two</div>
+              <div class="sample-box">Item three</div>
+            </div>
+            <div class="code-card" style="margin-top:18px">
+              <pre><code><span class="kw">stack</span> gap=<span class="str">"12px"</span>
+  <span class="kw">text</span> <span class="str">"Item one"</span>
+  <span class="kw">text</span> <span class="str">"Item two"</span>
+  <span class="kw">text</span> <span class="str">"Item three"</span></code></pre>
+            </div>
+          </article>
+
+          <article class="demo-stage">
+            <span class="demo-label">row · Horizontal flow</span>
+            <div class="row" style="flex-wrap:nowrap">
+              <div class="sample-box" style="flex:1">Left</div>
+              <div class="sample-box blue-box" style="flex:1">Middle</div>
+              <div class="sample-box purple-box" style="flex:1">Right</div>
+            </div>
+            <div class="code-card" style="margin-top:18px">
+              <pre><code><span class="kw">row</span> gap=<span class="str">"12px"</span>
+  <span class="kw">card</span> <span class="str">"Left"</span>
+  <span class="kw">card</span> <span class="str">"Middle"</span>
+  <span class="kw">card</span> <span class="str">"Right"</span></code></pre>
+            </div>
+          </article>
+
+          <article class="demo-stage">
+            <span class="demo-label">grid · Responsive columns</span>
+            <div class="grid grid-2" style="gap:8px">
+              <div class="sample-box">01</div>
+              <div class="sample-box blue-box">02</div>
+              <div class="sample-box purple-box">03</div>
+              <div class="sample-box">04</div>
+            </div>
+            <div class="code-card" style="margin-top:18px">
+              <pre><code><span class="kw">grid</span> columns=<span class="str">"2"</span> gap=<span class="str">"12px"</span>
+  <span class="kw">card</span> <span class="str">"01"</span>
+  <span class="kw">card</span> <span class="str">"02"</span>
+  <span class="kw">card</span> <span class="str">"03"</span>
+  <span class="kw">card</span> <span class="str">"04"</span></code></pre>
+            </div>
+          </article>
+
+          <article class="demo-stage">
+            <span class="demo-label">container · Controlled width</span>
+            <div class="sample-box" style="min-height:120px">
+              <div style="width:min(80%,300px); padding:15px; border:1px dashed currentColor; border-radius:8px">
+                Centered content
+              </div>
+            </div>
+            <div class="code-card" style="margin-top:18px">
+              <pre><code><span class="kw">container</span> max=<span class="str">"720px"</span>
+  <span class="kw">title</span> <span class="str">"Focused content"</span>
+  <span class="kw">text</span> <span class="str">"A readable content width."</span></code></pre>
+            </div>
+          </article>
+        </div>
+
+        <div class="grid grid-2" style="margin-top:16px">
+          <article class="card">
+            <span class="demo-label">spacer</span>
+            <p class="small">A deliberate gap between elements.</p>
+            <div class="sample-box">First element</div>
+            <div style="height:26px; display:flex; align-items:center; justify-content:center">
+              <span class="tiny muted">26px spacing</span>
+            </div>
+            <div class="sample-box blue-box">Second element</div>
+          </article>
+          <article class="card">
+            <span class="demo-label">divider</span>
+            <p class="small">Separate related content without adding visual clutter.</p>
+            <div class="row-between"><span>Account</span><span class="muted small">Profile settings</span></div>
+            <div class="divider"></div>
+            <div class="row-between"><span>Preferences</span><span class="muted small">Notifications</span></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         03 COMPONENTS
+    ======================================================== -->
+    <section class="section" id="components">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">03 · Component system</span>
+            <h2>Reusable by design.</h2>
+            <p>Define a component once, pass typed properties, and reuse a consistent design language.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="code-card">
+            <div class="code-top"><span>MetricCard.forma</span><span>Typed component</span></div>
+            <pre><code><span class="kw">component</span> MetricCard
+  <span class="kw">prop</span> label <span class="type">string</span>
+  <span class="kw">prop</span> metric <span class="type">number</span>
+  <span class="kw">prop</span> highlighted <span class="type">boolean</span>
+
+  <span class="kw">card</span> variant=<span class="str">"default"</span>
+    <span class="kw">text</span> label
+    <span class="kw">title</span> metric</code></pre>
+          </div>
+
+          <div class="grid" style="grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px">
+            <article class="card">
+              <span class="metric">24</span>
+              <span class="metric-label">Components</span>
+            </article>
+            <article class="card metric-highlight">
+              <span class="metric accent">98%</span>
+              <span class="metric-label">Consistency</span>
+            </article>
+          </div>
+        </div>
+
+        <div class="section-heading" style="margin-top:48px; margin-bottom:20px">
+          <div>
+            <h3>Variants and styles</h3>
+            <p>One component can offer several visual treatments.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <span class="demo-label">Button variants</span>
+          <div class="row">
+            <button class="button variant-button">Default</button>
+            <button class="button variant-soft variant-button">Soft</button>
+            <button class="button variant-outline variant-button">Outline</button>
+            <button class="button variant-neutral variant-button">Neutral</button>
+            <button class="button variant-danger variant-button">Danger</button>
+            <button class="button variant-ghost variant-button">Ghost</button>
+          </div>
+          <div class="code-card" style="margin-top:20px">
+            <pre><code><span class="kw">button</span> <span class="str">"Continue"</span> variant=<span class="str">"primary"</span>
+<span class="kw">button</span> <span class="str">"Learn more"</span> variant=<span class="str">"secondary"</span>
+<span class="kw">button</span> <span class="str">"Cancel"</span> variant=<span class="str">"ghost"</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         04 DESIGN TOKENS
+    ======================================================== -->
+    <section class="section" id="tokens">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">04 · Design tokens</span>
+            <h2>One system. Every detail.</h2>
+            <p>Name your design decisions and reuse them throughout the interface.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="panel">
+            <span class="demo-label">Color tokens</span>
+            <div class="token-list">
+              <div class="token-row">
+                <span>color.accent</span><span class="token-value">#c5f467</span><span class="swatch" style="background:#c5f467"></span>
+              </div>
+              <div class="token-row">
+                <span>color.background</span><span class="token-value">#09090b</span><span class="swatch" style="background:#09090b"></span>
+              </div>
+              <div class="token-row">
+                <span>color.surface</span><span class="token-value">#111114</span><span class="swatch" style="background:#111114"></span>
+              </div>
+              <div class="token-row">
+                <span>color.text</span><span class="token-value">#f4f4f5</span><span class="swatch" style="background:#f4f4f5"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="code-card">
+            <div class="code-top"><span>theme.forma</span><span>Token definitions</span></div>
+            <pre><code><span class="kw">theme</span>
+  color.accent = <span class="str">"#c5f467"</span>
+  color.background = <span class="str">"#09090b"</span>
+  color.surface = <span class="str">"#111114"</span>
+  color.text = <span class="str">"#f4f4f5"</span>
+
+  radius.card = <span class="str">"24px"</span>
+  space.section = <span class="str">"64px"</span></code></pre>
+          </div>
+        </div>
+
+        <div class="notice" style="margin-top:16px">
+          The swatches above use this page's CSS variables as a visual example.
+          Forma's compiler is responsible for emitting its own declared tokens as CSS custom properties.
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         05 MATERIALS
+    ======================================================== -->
+    <section class="section" id="materials">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">05 · Materials and effects</span>
+            <h2>Depth without the noise.</h2>
+            <p>Layered surfaces, subtle light, translucency and atmosphere, demonstrated with native CSS.</p>
+          </div>
+          <span class="pill">CSS-generated materials</span>
+        </div>
+
+        <div class="grid grid-2">
+          <article class="material-stage">
+            <div class="material-card glass">
+              <span class="eyebrow">Material 01</span>
+              <h3>Liquid glass</h3>
+              <p>Translucent layers, blur and a fine highlight along the edge.</p>
+            </div>
+          </article>
+
+          <article class="material-stage">
+            <div class="material-card glass reflection">
+              <span class="eyebrow">Material 02</span>
+              <h3>Reflection</h3>
+              <p>Move your cursor over this surface to see a passing highlight.</p>
+            </div>
+          </article>
+
+          <article class="material-stage">
+            <div class="material-card aurora" style="border:1px solid var(--border); border-radius:20px">
+              <span class="eyebrow">Material 03</span>
+              <h3>Aurora</h3>
+              <p>Layered atmospheric color and soft radial light.</p>
+            </div>
+          </article>
+
+          <article class="material-stage">
+            <div class="material-card border-glow" style="border:1px solid rgba(197,244,103,.65); border-radius:20px; background:rgba(12,12,14,.85)">
+              <span class="eyebrow">Material 04</span>
+              <h3>Border glow</h3>
+              <p>A restrained luminous edge draws attention to the surface.</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="code-card" style="margin-top:16px">
+          <div class="code-top"><span>materials.forma</span><span>Illustrative syntax</span></div>
+          <pre><code><span class="kw">panel</span> material=<span class="str">"glass"</span>
+  <span class="kw">title</span> <span class="str">"Liquid glass"</span>
+
+<span class="kw">panel</span> effect=<span class="str">"reflection"</span>
+  <span class="kw">text</span> <span class="str">"A moving highlight"</span>
+
+<span class="kw">panel</span> effect=<span class="str">"aurora"</span>
+  <span class="kw">text</span> <span class="str">"Atmospheric light"</span>
+
+<span class="kw">panel</span> effect=<span class="str">"border-glow"</span>
+  <span class="kw">text</span> <span class="str">"Luminous edge"</span></code></pre>
+        </div>
+
+        <p class="muted small" style="margin-top:13px">
+          Material names above describe the showcase concepts. Use the exact material and effect syntax supported by your current Forma compiler.
+        </p>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         06 MOTION
+    ======================================================== -->
+    <section class="section" id="motion">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">06 · Motion system</span>
+            <h2>Motion with purpose.</h2>
+            <p>Every reveal preset. Every hover preset. Subtle movement that supports the interface rather than competing with it.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="row-between" style="margin-bottom:20px">
+            <div>
+              <h3 style="margin-bottom:5px">Reveal animations</h3>
+              <p class="muted small" style="margin:0">Press any tile to replay its animation.</p>
+            </div>
+            <span class="pill">8 presets</span>
+          </div>
+
+          <div class="grid grid-4" id="motionGrid">
+            <button class="motion-tile" data-motion="fade-up"><b>Fade up</b><span>fade-up</span></button>
+            <button class="motion-tile" data-motion="fade-down"><b>Fade down</b><span>fade-down</span></button>
+            <button class="motion-tile" data-motion="fade-left"><b>Fade left</b><span>fade-left</span></button>
+            <button class="motion-tile" data-motion="fade-right"><b>Fade right</b><span>fade-right</span></button>
+            <button class="motion-tile" data-motion="fade"><b>Fade</b><span>fade</span></button>
+            <button class="motion-tile" data-motion="scale"><b>Scale</b><span>scale</span></button>
+            <button class="motion-tile" data-motion="zoom"><b>Zoom</b><span>zoom</span></button>
+            <button class="motion-tile" data-motion="blur"><b>Blur</b><span>blur</span></button>
+          </div>
+
+          <div class="code-card" style="margin-top:20px">
+            <pre><code><span class="kw">card</span> reveal=<span class="str">"fade-up"</span>
+<span class="kw">card</span> reveal=<span class="str">"fade-down"</span>
+<span class="kw">card</span> reveal=<span class="str">"fade-left"</span>
+<span class="kw">card</span> reveal=<span class="str">"fade-right"</span>
+<span class="kw">card</span> reveal=<span class="str">"fade"</span>
+<span class="kw">card</span> reveal=<span class="str">"scale"</span>
+<span class="kw">card</span> reveal=<span class="str">"zoom"</span>
+<span class="kw">card</span> reveal=<span class="str">"blur"</span></code></pre>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:16px">
+          <div class="row-between" style="margin-bottom:20px">
+            <div>
+              <h3 style="margin-bottom:5px">Hover interactions</h3>
+              <p class="muted small" style="margin:0">Hover the cards to try each preset.</p>
+            </div>
+            <span class="pill">5 presets</span>
+          </div>
+
+          <div class="grid grid-4">
+            <article class="card hover-demo hover-lift">
+              <span class="eyebrow">01</span><h3 style="margin-top:15px">Lift</h3><p class="small">Rise gently.</p>
+            </article>
+            <article class="card hover-demo hover-glow">
+              <span class="eyebrow">02</span><h3 style="margin-top:15px">Glow</h3><p class="small">Light the edge.</p>
+            </article>
+            <article class="card hover-demo hover-scale">
+              <span class="eyebrow">03</span><h3 style="margin-top:15px">Scale</h3><p class="small">Expand slightly.</p>
+            </article>
+            <article class="card hover-demo hover-tilt">
+              <span class="eyebrow">04</span><h3 style="margin-top:15px">Tilt</h3><p class="small">Add perspective.</p>
+            </article>
+          </div>
+
+          <div class="card hover-demo hover-none" style="margin-top:12px">
+            <div class="row-between">
+              <div><h3 style="margin:0">None</h3><p class="small" style="margin:5px 0 0">No hover transformation.</p></div>
+              <span class="pill">hover: none</span>
+            </div>
+          </div>
+
+          <div class="code-card" style="margin-top:20px">
+            <pre><code><span class="kw">card</span> hover=<span class="str">"lift"</span>
+<span class="kw">card</span> hover=<span class="str">"glow"</span>
+<span class="kw">card</span> hover=<span class="str">"scale"</span>
+<span class="kw">card</span> hover=<span class="str">"tilt"</span>
+<span class="kw">card</span> hover=<span class="str">"none"</span></code></pre>
+          </div>
+        </div>
+
+        <div class="notice" style="margin-top:16px">
+          Reduced-motion preferences are respected by this showcase. The actual Forma output should preserve the same accessibility consideration.
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         07 INTERACTIVE COMPONENTS
+    ======================================================== -->
+    <section class="section" id="interactions">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">07 · Interactive components</span>
+            <h2>Not just pretty. Interactive.</h2>
+            <p>Explore the accordion, accessible tabs, tooltip, dropdown and modal. These examples work directly in your browser.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <!-- Accordion -->
+          <article class="panel">
+            <span class="demo-label">01 · Accordion</span>
+            <h3>Frequently asked questions</h3>
+
+            <div class="accordion-item">
+              <button class="accordion-trigger" aria-expanded="true" aria-controls="acc-1" id="acc-trigger-1">
+                <span>What is Forma?</span><span aria-hidden="true">+</span>
+              </button>
+              <div class="accordion-content" id="acc-1" role="region" aria-labelledby="acc-trigger-1">
+                Forma is an experimental declarative language for describing frontend interfaces and compiling them to HTML and CSS.
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button class="accordion-trigger" aria-expanded="false" aria-controls="acc-2" id="acc-trigger-2">
+                <span>Does it generate HTML?</span><span aria-hidden="true">+</span>
+              </button>
+              <div class="accordion-content" id="acc-2" role="region" aria-labelledby="acc-trigger-2" hidden>
+                Yes. The current compiler generates HTML and CSS. More advanced features still depend on what the compiler and runtime implement.
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button class="accordion-trigger" aria-expanded="false" aria-controls="acc-3" id="acc-trigger-3">
+                <span>Can I use it in production?</span><span aria-hidden="true">+</span>
+              </button>
+              <div class="accordion-content" id="acc-3" role="region" aria-labelledby="acc-trigger-3" hidden>
+                Treat it as an experimental project until its generated output, security, accessibility and runtime behavior have been tested for your use case.
+              </div>
+            </div>
+
+            <div class="code-card" style="margin-top:20px">
+              <pre><code><span class="kw">accordion</span>
+  <span class="kw">item</span> <span class="str">"What is Forma?"</span>
+    <span class="kw">text</span> <span class="str">"A frontend language."</span></code></pre>
+            </div>
+          </article>
+
+          <!-- Tabs -->
+          <article class="panel">
+            <span class="demo-label">02 · Tabs</span>
+            <h3>Switch between views</h3>
+
+            <div class="tabs-list" role="tablist" aria-label="Example tabs">
+              <button class="tab" id="tab-design" role="tab" aria-selected="true" aria-controls="tab-panel-design" tabindex="0">Design</button>
+              <button class="tab" id="tab-code" role="tab" aria-selected="false" aria-controls="tab-panel-code" tabindex="-1">Code</button>
+              <button class="tab" id="tab-output" role="tab" aria-selected="false" aria-controls="tab-panel-output" tabindex="-1">Output</button>
+            </div>
+
+            <div class="tab-panel" id="tab-panel-design" role="tabpanel" aria-labelledby="tab-design">
+              <h4>Designed with intent.</h4>
+              <p class="muted small">Tokens, consistent spacing and reusable components give the interface a shared visual language.</p>
+            </div>
+            <div class="tab-panel" id="tab-panel-code" role="tabpanel" aria-labelledby="tab-code" hidden>
+              <h4>Readable source.</h4>
+              <p class="muted small">Describe the interface using a compact declarative syntax instead of writing every browser detail by hand.</p>
+            </div>
+            <div class="tab-panel" id="tab-panel-output" role="tabpanel" aria-labelledby="tab-output" hidden>
+              <h4>Browser-ready output.</h4>
+              <p class="muted small">The compiler generates HTML and CSS that can be served by a web server.</p>
+            </div>
+
+            <div class="code-card" style="margin-top:20px">
+              <pre><code><span class="kw">tabs</span>
+  <span class="kw">tab</span> <span class="str">"Design"</span>
+    <span class="kw">text</span> <span class="str">"Design content"</span>
+  <span class="kw">tab</span> <span class="str">"Code"</span>
+    <span class="kw">text</span> <span class="str">"Code content"</span></code></pre>
+            </div>
+          </article>
+
+          <!-- Tooltip -->
+          <article class="panel">
+            <span class="demo-label">03 · Tooltip</span>
+            <h3>Small details, explained.</h3>
+            <p class="muted small">Hover over or keyboard-focus the button to reveal its tooltip.</p>
+
+            <div style="padding:36px 0; text-align:center">
+              <span class="tooltip-wrap">
+                <button class="button button-secondary" aria-describedby="demoTooltip">What's this?</button>
+                <span class="tooltip" role="tooltip" id="demoTooltip">A tooltip adds context without clutter.</span>
+              </span>
+            </div>
+
+            <div class="code-card">
+              <pre><code><span class="kw">tooltip</span> <span class="str">"Helpful context"</span>
+  <span class="kw">button</span> <span class="str">"What's this?"</span></code></pre>
+            </div>
+          </article>
+
+          <!-- Dropdown -->
+          <article class="panel">
+            <span class="demo-label">04 · Dropdown</span>
+            <h3>A compact action menu.</h3>
+            <p class="muted small">Open the menu and select an action.</p>
+
+            <div class="dropdown" style="margin:14px 0 25px">
+              <button class="button button-secondary" id="dropdownTrigger" aria-haspopup="menu" aria-expanded="false" aria-controls="dropdownMenu">
+                Actions <span aria-hidden="true">⌄</span>
+              </button>
+              <div class="dropdown-menu" id="dropdownMenu" role="menu" hidden>
+                <button role="menuitem" data-dropdown-action="Edit profile">Edit profile</button>
+                <button role="menuitem" data-dropdown-action="Duplicate item">Duplicate item</button>
+                <button role="menuitem" data-dropdown-action="Export data">Export data</button>
+              </div>
+            </div>
+            <p class="small muted" id="dropdownResult" aria-live="polite">No action selected.</p>
+
+            <div class="code-card">
+              <pre><code><span class="kw">dropdown</span>
+  <span class="kw">item</span> <span class="str">"Edit profile"</span>
+  <span class="kw">item</span> <span class="str">"Duplicate item"</span>
+  <span class="kw">item</span> <span class="str">"Export data"</span></code></pre>
+            </div>
+          </article>
+        </div>
+
+        <!-- Modal -->
+        <article class="panel" style="margin-top:16px">
+          <div class="row-between">
+            <div>
+              <span class="demo-label">05 · Modal</span>
+              <h3>Bring attention to one task.</h3>
+              <p class="muted small" style="margin:0">A focused dialog with a backdrop and keyboard dismissal.</p>
+            </div>
+            <button class="button" id="openModal">Open modal ↗</button>
+          </div>
+
+          <div class="code-card" style="margin-top:20px">
+            <pre><code><span class="kw">modal</span> id=<span class="str">"confirmation"</span>
+  <span class="kw">title</span> <span class="str">"Ready to continue?"</span>
+  <span class="kw">text</span> <span class="str">"Review before proceeding."</span>
+  <span class="kw">button</span> <span class="str">"Confirm"</span></code></pre>
+          </div>
+        </article>
+
+        <dialog id="demoModal" aria-labelledby="modalTitle" aria-describedby="modalDescription">
+          <div class="modal-content">
+            <span class="eyebrow">Forma dialog</span>
+            <h3 id="modalTitle" style="margin-top:18px">Ready to continue?</h3>
+            <p id="modalDescription">This is a working modal demonstration using the browser's native dialog element.</p>
+            <div class="row" style="margin-top:24px; justify-content:flex-end">
+              <button class="button button-secondary" id="closeModal">Cancel</button>
+              <button class="button" id="confirmModal">Confirm</button>
+            </div>
+          </div>
+        </dialog>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         08 STATE AND CONDITIONS
+    ======================================================== -->
+    <section class="section" id="state">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">08 · State and conditions</span>
+            <h2>Interfaces that respond.</h2>
+            <p>State, actions and equality-based conditions allow a page to react to user input.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <article class="panel">
+            <span class="demo-label">Reactive state</span>
+            <h3>Counter</h3>
+            <p class="muted small">Change the value. The display updates immediately.</p>
+
+            <div class="state-display" style="margin-top:22px">
+              <div>
+                <div class="state-number" id="counterValue" aria-live="polite">0</div>
+                <span class="muted small">Current value</span>
+              </div>
+              <div class="row">
+                <button class="button button-secondary" id="counterDown" aria-label="Decrease counter">−</button>
+                <button class="button" id="counterUp" aria-label="Increase counter">+</button>
+              </div>
+            </div>
+
+            <div class="code-card" style="margin-top:20px">
+              <pre><code><span class="kw">state</span> count = <span class="str">0</span>
+
+<span class="kw">text</span> count
+
+<span class="kw">button</span> <span class="str">"Increase"</span>
+  on click
+    set count = count + <span class="str">1</span></code></pre>
+            </div>
+          </article>
+
+          <article class="panel">
+            <span class="demo-label">Boolean conditions</span>
+            <h3>Show and hide content</h3>
+            <p class="muted small">Toggle the state to control conditional content.</p>
+
+            <div class="row" style="margin:18px 0">
+              <button class="button" id="toggleDetails" aria-expanded="false" aria-controls="conditionalDetails">Show details</button>
+              <span class="state-indicator" id="detailsStatus">Hidden</span>
+            </div>
+
+            <div class="conditional-box" id="conditionalDetails" hidden>
+              <h4>Additional information</h4>
+              <p class="small" style="margin:0">This block is visible only while the toggle state is true.</p>
+            </div>
+
+            <div class="code-card" style="margin-top:20px">
+              <pre><code><span class="kw">state</span> showDetails = <span class="str">false</span>
+
+<span class="kw">button</span> <span class="str">"Show details"</span>
+  on click
+    set showDetails = <span class="str">true</span>
+
+<span class="kw">when</span> showDetails = <span class="str">true</span>
+  <span class="kw">panel</span>
+    <span class="kw">text</span> <span class="str">"Additional information"</span></code></pre>
+            </div>
+          </article>
+
+          <article class="panel">
+            <span class="demo-label">String conditions</span>
+            <h3>Status-driven UI</h3>
+
+            <div class="row" style="margin:18px 0">
+              <button class="button button-secondary" id="setReady">Set ready</button>
+              <button class="button button-secondary" id="setPending">Set pending</button>
+            </div>
+
+            <div class="conditional-box" id="readyContent">
+              <span class="accent small">Ready condition matched</span>
+              <p class="small" style="margin:6px 0 0">The current status is "Ready".</p>
+            </div>
+            <div class="conditional-box" id="pendingContent" hidden>
+              <span class="blue small">Pending condition matched</span>
+              <p class="small" style="margin:6px 0 0">The current status is "Pending".</p>
+            </div>
+
+            <div class="code-card" style="margin-top:20px">
+              <pre><code><span class="kw">state</span> status = <span class="str">"Ready"</span>
+
+<span class="kw">when</span> status = <span class="str">"Ready"</span>
+  <span class="kw">text</span> <span class="str">"Ready condition matched"</span>
+
+<span class="kw">when</span> status = <span class="str">"Pending"</span>
+  <span class="kw">text</span> <span class="str">"Pending condition matched"</span></code></pre>
+            </div>
+          </article>
+
+          <article class="panel">
+            <span class="demo-label">Number conditions</span>
+            <h3>Threshold-based content</h3>
+
+            <div class="row-between" style="margin:18px 0">
+              <label for="scoreRange" class="small">Score</label>
+              <strong id="scoreValue" class="accent">75</strong>
+            </div>
+            <input class="control" id="scoreRange" type="range" min="0" max="100" value="75" aria-label="Score">
+            <div id="scoreLow" class="conditional-box" style="margin-top:15px" hidden>Score is below 50.</div>
+            <div id="scoreHigh" class="conditional-box" style="margin-top:15px">Score is 50 or above.</div>
+
+            <div class="code-card" style="margin-top:20px">
+              <pre><code><span class="kw">state</span> score = <span class="str">75</span>
+
+<span class="kw">when</span> score = <span class="str">75</span>
+  <span class="kw">text</span> <span class="str">"Exact match"</span></code></pre>
+            </div>
+            <p class="small muted" style="margin-top:12px">The slider demonstrates a range comparison in JavaScript. The displayed Forma snippet demonstrates the language's equality condition.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         09 FORMS
+    ======================================================== -->
+    <section class="section" id="forms">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">09 · Forms and input</span>
+            <h2>From input to response.</h2>
+            <p>Explore the supported input categories, native browser validation, state binding concepts, submission and success feedback.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="code-card">
+            <div class="code-top"><span>contact.forma</span><span>Form syntax</span></div>
+            <pre><code><span class="kw">state</span> contactEmail = <span class="str">""</span>
+<span class="kw">state</span> wantsUpdates = <span class="str">true</span>
+
+<span class="kw">form</span> id=<span class="str">"contact"</span>
+  <span class="kw">input</span> name=<span class="str">"contactEmail"</span>
+    type=<span class="str">"email"</span>
+    label=<span class="str">"Email address"</span>
+    required=<span class="str">true</span>
+
+  <span class="kw">checkbox</span> name=<span class="str">"wantsUpdates"</span>
+    label=<span class="str">"Send me updates"</span>
+
+  <span class="kw">submit</span> <span class="str">"Send message"</span>
+
+  <span class="kw">success</span>
+    <span class="kw">text</span> <span class="str">"Message received."</span></code></pre>
+          </div>
+
+          <div class="panel">
+            <span class="demo-label">Working browser example</span>
+            <h3>Contact form</h3>
+            <p class="muted small">Try submitting with an invalid email, then correct it.</p>
+
+            <form id="contactForm">
+              <div class="form-grid">
+                <div class="field field-full">
+                  <label for="contactName">Name</label>
+                  <input class="control" id="contactName" name="name" type="text" placeholder="Your name" required>
+                </div>
+                <div class="field field-full">
+                  <label for="contactEmail">Email address</label>
+                  <input class="control" id="contactEmail" name="email" type="email" placeholder="you@example.com" required>
+                  <span class="field-hint">Uses native browser email validation.</span>
+                </div>
+                <div class="field field-full">
+                  <label class="checkbox-row">
+                    <input type="checkbox" name="updates" id="updatesCheckbox">
+                    <span>I'd like to receive occasional updates.</span>
+                  </label>
+                </div>
+                <div class="field field-full">
+                  <button class="button" type="submit">Submit form ↗</button>
+                </div>
+              </div>
+            </form>
+
+            <div class="success-message" id="contactSuccess" role="status" hidden style="margin-top:16px">
+              Form submitted successfully. This is a local demo only.
+            </div>
+          </div>
+        </div>
+
+        <div class="section-heading" style="margin-top:50px; margin-bottom:20px">
+          <div>
+            <h3>Input type catalogue</h3>
+            <p>Text, email, password, number, telephone, URL, textarea, checkbox and select.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="form-grid">
+            <div class="field">
+              <label for="demoText">Text input</label>
+              <input class="control" id="demoText" type="text" placeholder="Your name">
+            </div>
+
+            <div class="field">
+              <label for="demoEmail">Email input</label>
+              <input class="control" id="demoEmail" type="email" placeholder="you@example.com">
+            </div>
+
+            <div class="field">
+              <label for="demoPassword">Password input</label>
+              <input class="control" id="demoPassword" type="password" placeholder="Enter password">
+            </div>
+
+            <div class="field">
+              <label for="demoNumber">Number input</label>
+              <input class="control" id="demoNumber" type="number" min="0" max="100" placeholder="42">
+            </div>
+
+            <div class="field">
+              <label for="demoTel">Telephone input</label>
+              <input class="control" id="demoTel" type="tel" placeholder="+64 21 000 0000">
+            </div>
+
+            <div class="field">
+              <label for="demoUrl">URL input</label>
+              <input class="control" id="demoUrl" type="url" placeholder="https://example.com">
+            </div>
+
+            <div class="field field-full">
+              <label for="demoTextarea">Textarea</label>
+              <textarea class="control" id="demoTextarea" placeholder="Write a longer message..."></textarea>
+            </div>
+
+            <div class="field">
+              <label for="demoSelect">Select menu</label>
+              <select class="control" id="demoSelect">
+                <option value="">Choose an option</option>
+                <option>Design</option>
+                <option>Development</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Checkbox</label>
+              <label class="checkbox-row">
+                <input type="checkbox" id="demoCheckbox">
+                <span>Enable this option</span>
+              </label>
+              <span class="field-hint" id="checkboxState">Currently unchecked.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="notice" style="margin-top:16px">
+          This contact form does not send data to a server. Forma's client-side submit event can expose submitted values to client-side code, but real data collection needs a trusted backend, validation and appropriate security controls.
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         10 LEGACY COMPATIBILITY
+    ======================================================== -->
+    <section class="section" id="compatibility">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">10 · Compatibility</span>
+            <h2>Keep the old. Build the new.</h2>
+            <p>A place to document legacy syntax that remains supported as Forma evolves.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="code-card">
+            <div class="code-top"><span>Older style</span><span>Illustrative</span></div>
+            <pre><code><span class="comment"># Earlier project syntax</span>
+<span class="kw">site</span> <span class="str">"My website"</span>
+  <span class="kw">page</span> <span class="str">"/"</span>
+    <span class="kw">text</span> <span class="str">"Hello world"</span></code></pre>
+          </div>
+
+          <div class="code-card">
+            <div class="code-top"><span>Current style</span><span>Illustrative</span></div>
+            <pre><code><span class="kw">site</span> <span class="str">"My website"</span>
+  <span class="kw">theme</span>
+    color.accent = <span class="str">"#c5f467"</span>
+
+  <span class="kw">page</span> <span class="str">"/"</span>
+    <span class="kw">container</span>
+      <span class="kw">title</span> <span class="str">"Hello world"</span>
+      <span class="kw">text</span> <span class="str">"Built with Forma."</span></code></pre>
+          </div>
+        </div>
+
+        <p class="muted small" style="margin-top:15px">
+          These examples illustrate the idea of compatibility. They do not establish that every older syntax variant is accepted by the current parser. Refer to LANGUAGE.md for the authoritative syntax reference.
+        </p>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         11 FEATURE INDEX
+    ======================================================== -->
+    <section class="section" id="feature-index">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">11 · The feature index</span>
+            <h2>The whole system, at a glance.</h2>
+            <p>A visual checklist of the features this showcase covers. The list is a documentation aid, not an automated compiler test.</p>
+          </div>
+          <span class="pill">Feature map</span>
+        </div>
+
+        <div class="feature-list">
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Declarative pages</b><small>Site structure, pages, navigation and content.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Typed component props</b><small>String, number and boolean prop concepts.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Layout primitives</b><small>Stack, row, grid, container, spacer and divider.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Design tokens</b><small>Named values and CSS custom properties.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Component variants</b><small>Different visual styles for reusable elements.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Liquid-glass materials</b><small>Translucency, blur and layered highlights.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Reflection effect</b><small>A moving light treatment.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Aurora effect</b><small>Layered atmospheric gradients.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Border glow</b><small>Subtle illuminated edges.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Eight reveal presets</b><small>Fade, directional fades, scale, zoom and blur.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Five hover presets</b><small>Lift, glow, scale, tilt and none.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Reduced-motion support</b><small>Respects the browser's motion preference.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Accordion</b><small>Expandable and collapsible content.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Tabs</b><small>Keyboard-navigable tabbed content.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Tooltip</b><small>Supplementary contextual information.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Dropdown</b><small>Compact action menus.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Modal</b><small>Focused dialog interactions.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Reactive state</b><small>State changes and displayed values.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Conditional rendering</b><small>Boolean, string and equality-condition examples.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Input controls</b><small>Text, email, password, number, tel and URL.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Textarea, checkbox and select</b><small>Additional native form controls.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Submit and success states</b><small>Client-side validation and feedback.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Responsive layout</b><small>Mobile and desktop adaptations.</small></div></div>
+          <div class="feature-item"><span class="feature-check">✓</span><div><b>Legacy syntax notes</b><small>Compatibility documentation examples.</small></div></div>
+        </div>
+
+        <div class="panel aurora" style="margin-top:24px; padding:clamp(25px,5vw,50px)">
+          <span class="eyebrow">The bigger picture</span>
+          <h2 style="max-width:700px; margin-top:20px">A language should make the good parts easier.</h2>
+          <p class="muted" style="max-width:600px">
+            Forma brings structure, styling and interaction into one expressive workflow.
+            The goal is not to replace everything in web development. It is to make building thoughtful interfaces simpler.
+          </p>
+          <div class="row" style="margin-top:25px">
+            <a class="button" href="#top">Back to the top ↑</a>
+            <a class="button button-secondary" href="https://github.com/harry12132/forma" target="_blank" rel="noreferrer">View Forma on GitHub ↗</a>
+          </div>
+        </div>
+
+        <div class="notice" style="margin-top:18px">
+          Accuracy note: this is a showcase of the project's feature concepts and browser-side demonstrations. Some source snippets are illustrative rather than guaranteed to compile as written. The actual repository's parser, compiler, runtime, tests and LANGUAGE.md remain the source of truth.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="shell footer-inner">
+      <a class="logo" href="#top">forma<span>.</span></a>
+      <span>Experimental frontend language · Open source · Built for the details.</span>
+      <a href="#feature-index">Explore all features ↑</a>
+    </div>
+  </footer>
+
+  <div id="toast" role="status" aria-live="polite"
+    style="position:fixed; z-index:100; right:20px; bottom:20px; max-width:calc(100% - 40px); padding:12px 16px; border:1px solid var(--border); border-radius:12px; background:#202025; color:var(--text); font-size:12px; box-shadow:0 15px 40px #0008; opacity:0; transform:translateY(8px); pointer-events:none; transition:opacity .2s,transform .2s">
+  </div>
+
+  <script>
+    /* =========================================================
+       FORMA STUDIO INTERACTIONS
+    ========================================================= */
+
+    document.documentElement.classList.add("js");
+
+    // Mobile navigation
+    const menuToggle = document.getElementById("menuToggle");
+    const navLinks = document.getElementById("navLinks");
+
+    menuToggle.addEventListener("click", () => {
+      const open = menuToggle.getAttribute("aria-expanded") !== "true";
+      menuToggle.setAttribute("aria-expanded", String(open));
+      navLinks.classList.toggle("open", open);
+    });
+
+    navLinks.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        navLinks.classList.remove("open");
+        menuToggle.setAttribute("aria-expanded", "false");
+      });
+    });
+
+    // Scroll reveal
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const revealItems = document.querySelectorAll("[data-reveal]");
+
+    if ("IntersectionObserver" in window && !reduceMotion) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+
+      revealItems.forEach(el => observer.observe(el));
+    } else {
+      revealItems.forEach(el => el.classList.add("is-visible"));
+    }
+
+    // Toast feedback
+    const toast = document.getElementById("toast");
+    let toastTimeout;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.style.opacity = "1";
+      toast.style.transform = "translateY(0)";
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(8px)";
+      }, 2400);
+    }
+
+    // Reveal animation playground
+    const motionStyles = {
+      "fade-up": ["translateY(20px)", "translateY(0)"],
+      "fade-down": ["translateY(-20px)", "translateY(0)"],
+      "fade-left": ["translateX(20px)", "translateX(0)"],
+      "fade-right": ["translateX(-20px)", "translateX(0)"],
+      "fade": ["none", "none"],
+      "scale": ["scale(.85)", "scale(1)"],
+      "zoom": ["scale(.65)", "scale(1)"],
+      "blur": ["scale(.98)", "scale(1)"]
+    };
+
+    document.querySelectorAll("[data-motion]").forEach(tile => {
+      tile.addEventListener("click", () => {
+        const preset = tile.dataset.motion;
+        const [from, to] = motionStyles[preset];
+        const filterFrom = preset === "blur" ? "blur(8px)" : "blur(0)";
+        const filterTo = "blur(0)";
+
+        tile.animate([
+          { opacity: 0.2, transform: from, filter: filterFrom },
+          { opacity: 1, transform: to, filter: filterTo }
+        ], {
+          duration: reduceMotion ? 1 : 650,
+          easing: "cubic-bezier(.2,.75,.25,1)"
+        });
+
+        showToast("Replayed: " + preset);
+      });
+    });
+
+    // Accordion
+    document.querySelectorAll(".accordion-trigger").forEach(trigger => {
+      trigger.addEventListener("click", () => {
+        const expanded = trigger.getAttribute("aria-expanded") === "true";
+        const content = document.getElementById(trigger.getAttribute("aria-controls"));
+
+        trigger.setAttribute("aria-expanded", String(!expanded));
+        content.hidden = expanded;
+      });
+    });
+
+    // Tabs with keyboard navigation
+    document.querySelectorAll('[role="tablist"]').forEach(tablist => {
+      const tabs = Array.from(tablist.querySelectorAll('[role="tab"]'));
+
+      function activateTab(tab, moveFocus = false) {
+        tabs.forEach(item => {
+          const selected = item === tab;
+          item.setAttribute("aria-selected", String(selected));
+          item.tabIndex = selected ? 0 : -1;
+          document.getElementById(item.getAttribute("aria-controls")).hidden = !selected;
+        });
+
+        if (moveFocus) tab.focus();
+      }
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => activateTab(tab));
+
+        tab.addEventListener("keydown", event => {
+          let nextIndex = index;
+
+          if (event.key === "ArrowRight") nextIndex = (index + 1) % tabs.length;
+          else if (event.key === "ArrowLeft") nextIndex = (index - 1 + tabs.length) % tabs.length;
+          else if (event.key === "Home") nextIndex = 0;
+          else if (event.key === "End") nextIndex = tabs.length - 1;
+          else return;
+
+          event.preventDefault();
+          activateTab(tabs[nextIndex], true);
+        });
+      });
+    });
+
+    // Dropdown
+    const dropdownTrigger = document.getElementById("dropdownTrigger");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+
+    function closeDropdown() {
+      dropdownMenu.hidden = true;
+      dropdownTrigger.setAttribute("aria-expanded", "false");
+    }
+
+    dropdownTrigger.addEventListener("click", () => {
+      const open = dropdownMenu.hidden;
+      dropdownMenu.hidden = !open;
+      dropdownTrigger.setAttribute("aria-expanded", String(open));
+
+      if (open) dropdownMenu.querySelector("button").focus();
+    });
+
+    dropdownMenu.querySelectorAll("[role='menuitem']").forEach(item => {
+      item.addEventListener("click", () => {
+        document.getElementById("dropdownResult").textContent =
+          "Selected: " + item.dataset.dropdownAction;
+        showToast(item.dataset.dropdownAction);
+        closeDropdown();
+        dropdownTrigger.focus();
+      });
+
+      item.addEventListener("keydown", event => {
+        const items = Array.from(dropdownMenu.querySelectorAll("[role='menuitem']"));
+        const index = items.indexOf(item);
+
+        if (event.key === "Escape") {
+          closeDropdown();
+          dropdownTrigger.focus();
+        } else if (event.key === "ArrowDown") {
+          event.preventDefault();
+          items[(index + 1) % items.length].focus();
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          items[(index - 1 + items.length) % items.length].focus();
+        }
+      });
+    });
+
+    document.addEventListener("click", event => {
+      if (!event.target.closest(".dropdown")) closeDropdown();
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeDropdown();
+    });
+
+    // Modal
+    const demoModal = document.getElementById("demoModal");
+
+    document.getElementById("openModal").addEventListener("click", () => {
+      demoModal.showModal();
+    });
+
+    document.getElementById("closeModal").addEventListener("click", () => {
+      demoModal.close();
+    });
+
+    document.getElementById("confirmModal").addEventListener("click", () => {
+      demoModal.close();
+      showToast("Confirmation complete.");
+    });
+
+    // Counter state
+    let count = 0;
+    const counterValue = document.getElementById("counterValue");
+
+    function renderCount() {
+      counterValue.textContent = String(count);
+    }
+
+    document.getElementById("counterUp").addEventListener("click", () => {
+      count += 1;
+      renderCount();
+    });
+
+    document.getElementById("counterDown").addEventListener("click", () => {
+      count -= 1;
+      renderCount();
+    });
+
+    // Boolean conditional
+    let showDetails = false;
+    const toggleDetails = document.getElementById("toggleDetails");
+    const conditionalDetails = document.getElementById("conditionalDetails");
+    const detailsStatus = document.getElementById("detailsStatus");
+
+    toggleDetails.addEventListener("click", () => {
+      showDetails = !showDetails;
+      conditionalDetails.hidden = !showDetails;
+      toggleDetails.setAttribute("aria-expanded", String(showDetails));
+      toggleDetails.textContent = showDetails ? "Hide details" : "Show details";
+      detailsStatus.textContent = showDetails ? "Visible" : "Hidden";
+    });
+
+    // String equality condition
+    let status = "Ready";
+
+    function renderStatus() {
+      const ready = status === "Ready";
+      document.getElementById("readyContent").hidden = !ready;
+      document.getElementById("pendingContent").hidden = ready;
+    }
+
+    document.getElementById("setReady").addEventListener("click", () => {
+      status = "Ready";
+      renderStatus();
+    });
+
+    document.getElementById("setPending").addEventListener("click", () => {
+      status = "Pending";
+      renderStatus();
+    });
+
+    // Number-based example
+    const scoreRange = document.getElementById("scoreRange");
+
+    scoreRange.addEventListener("input", () => {
+      const score = Number(scoreRange.value);
+      document.getElementById("scoreValue").textContent = String(score);
+      document.getElementById("scoreLow").hidden = score >= 50;
+      document.getElementById("scoreHigh").hidden = score < 50;
+    });
+
+    // Native browser form validation and local success state
+    const contactForm = document.getElementById("contactForm");
+
+    contactForm.addEventListener("submit", event => {
+      event.preventDefault();
+
+      if (!contactForm.reportValidity()) return;
+
+      const formData = new FormData(contactForm);
+      const name = String(formData.get("name") || "").trim();
+
+      document.getElementById("contactSuccess").textContent =
+        "Thanks" + (name ? ", " + name : "") +
+        ". The form was validated and submitted locally. No data was sent to a server.";
+
+      document.getElementById("contactSuccess").hidden = false;
+      showToast("Form submitted locally.");
+    });
+
+    // Checkbox state
+    document.getElementById("demoCheckbox").addEventListener("change", event => {
+      document.getElementById("checkboxState").textContent =
+        event.target.checked ? "Currently checked." : "Currently unchecked.";
+    });
+  </script>
 </body>
 </html>
