@@ -130,7 +130,7 @@ function parseLink(node, props = {}) {
 
 function layoutOptions(node, defaults = {}) {
   const settingNames = ['gap', 'align', 'justify', 'wrap', 'columns', 'max', 'padding'];
-  assertAllowed(node, new Set(settingNames));
+  for (const child of node.children) if (settingNames.includes(child.name) && child.children.length) throw new Error(`Line ${child.line}: layout settings cannot contain nested blocks.`);
   const result = { ...defaults };
   for (const key of settingNames) {
     const setting = one(node, key);
