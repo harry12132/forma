@@ -88,6 +88,21 @@ test('compiles a reactive counter with initial state, bindings, and click action
   assert.match(result.html, /document\.addEventListener\('click'/);
 });
 
+test('compiles click actions that assign string state values', () => {
+  const source = [
+    'site "String action"',
+    '  page "/"',
+    '    state status = "Idle"',
+    '    button "Mark ready"',
+    '      on click',
+    '        set status = "Ready"',
+    '    text "Status: {status}"'
+  ].join('\\n');
+  const result = compile(source);
+  assert.match(result.html, /data-forma-action="assign:status:/);
+  assert.match(result.html, /Ready/);
+});
+
 test('rejects actions that refer to undeclared state', () => {
   const src = `site "X"
   page "/"
