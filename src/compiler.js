@@ -353,7 +353,7 @@ function renderNode(node, context = {}) {
     case 'form': {
       assertAllowed(node, new Set(['input','textarea','checkbox','select','submit','success','text','title','divider','when']));
       const label = arg(node, 0, 'Form');
-      const content = node.children.filter(child => child.name !== 'success').map(child => renderNode(child, nested)).join('\\n');
+      const content = node.children.filter(child => child.name !== 'success').map(child => renderNode(child, nested)).join('\n');
       const success = one(node, 'success');
       const successHtml = success ? `<p class="forma-form-success" data-forma-success hidden role="status" tabindex="-1">${renderBoundText(arg(success), props, states)}</p>` : '<p class="forma-form-success" data-forma-success hidden role="status" tabindex="-1">Your form was submitted.</p>';
       return `<form class="forma-form" data-forma-form aria-label="${escapeHtml(label)}">${content}${successHtml}</form>`;
@@ -362,7 +362,7 @@ function renderNode(node, context = {}) {
       if (node.args.length !== 3) throw new Error(`Line ${node.line}: use input name type "Label", e.g. input email email "Email address".`);
       assertAllowed(node, new Set(['required','placeholder']));
       const [name, type, label] = node.args;
-      if (!/^[A-Za-z_][\\w-]*$/.test(name)) throw new Error(`Line ${node.line}: input names must be valid identifiers.`);
+      if (!/^[A-Za-z_][\w-]*$/.test(name)) throw new Error(`Line ${node.line}: input names must be valid identifiers.`);
       if (!['text','email','password','number','tel','url'].includes(type)) throw new Error(`Line ${node.line}: unsupported input type '${type}'.`);
       const required = children(node, 'required').length ? arg(children(node,'required')[0]) : 'false';
       if (!['true','false'].includes(required)) throw new Error(`Line ${node.line}: required must be true or false.`);
@@ -374,7 +374,7 @@ function renderNode(node, context = {}) {
       if (node.args.length !== 2) throw new Error(`Line ${node.line}: use textarea name "Label".`);
       assertAllowed(node, new Set(['required','placeholder','rows']));
       const [name, label] = node.args;
-      if (!/^[A-Za-z_][\\w-]*$/.test(name)) throw new Error(`Line ${node.line}: textarea names must be valid identifiers.`);
+      if (!/^[A-Za-z_][\w-]*$/.test(name)) throw new Error(`Line ${node.line}: textarea names must be valid identifiers.`);
       const required = children(node, 'required').length ? arg(children(node,'required')[0]) : 'false';
       if (!['true','false'].includes(required)) throw new Error(`Line ${node.line}: required must be true or false.`);
       const placeholderNode = one(node, 'placeholder');
@@ -387,7 +387,7 @@ function renderNode(node, context = {}) {
       if (node.args.length !== 2) throw new Error(`Line ${node.line}: use checkbox name "Label".`);
       assertAllowed(node, new Set(['checked']));
       const [name, label] = node.args;
-      if (!/^[A-Za-z_][\\w-]*$/.test(name)) throw new Error(`Line ${node.line}: checkbox names must be valid identifiers.`);
+      if (!/^[A-Za-z_][\w-]*$/.test(name)) throw new Error(`Line ${node.line}: checkbox names must be valid identifiers.`);
       const checked = children(node, 'checked').length ? arg(children(node,'checked')[0]) : 'false';
       if (!['true','false'].includes(checked)) throw new Error(`Line ${node.line}: checked must be true or false.`);
       return `<label class="forma-checkbox"><input type="checkbox" name="${escapeHtml(name)}" data-forma-input="${escapeHtml(name)}"${checked === 'true' ? ' checked' : ''}><span>${escapeHtml(label)}</span></label>`;
@@ -396,7 +396,7 @@ function renderNode(node, context = {}) {
       if (node.args.length !== 2) throw new Error(`Line ${node.line}: use select name "Label".`);
       assertAllowed(node, new Set(['option','required']));
       const [name, label] = node.args;
-      if (!/^[A-Za-z_][\\w-]*$/.test(name)) throw new Error(`Line ${node.line}: select names must be valid identifiers.`);
+      if (!/^[A-Za-z_][\w-]*$/.test(name)) throw new Error(`Line ${node.line}: select names must be valid identifiers.`);
       const options = children(node, 'option');
       if (!options.length) throw new Error(`Line ${node.line}: select needs at least one option.`);
       const required = children(node, 'required').length ? arg(children(node,'required')[0]) : 'false';
@@ -416,13 +416,13 @@ function renderNode(node, context = {}) {
       return '';
     }
     case 'when': {
-      const match = node.args.join(' ').match(/^([A-Za-z_][\\w]*)\\s*=\\s*(true|false|-?\\d+(?:\\.\\d+)?|"[^"]*"|'[^']*')$/);
+      const match = node.args.join(' ').match(/^([A-Za-z_][\w]*)\s*=\s*(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*')$/);
       if (!match) throw new Error(`Line ${node.line}: use when state = value, e.g. when subscribed = true.`);
       const [, key, raw] = match;
       if (!Object.hasOwn(states, key)) throw new Error(`Line ${node.line}: state '${key}' has not been declared.`);
-      const value = raw === 'true' ? true : raw === 'false' ? false : /^-?\\d/.test(raw) ? Number(raw) : raw.slice(1,-1);
+      const value = raw === 'true' ? true : raw === 'false' ? false : /^-?\d/.test(raw) ? Number(raw) : raw.slice(1,-1);
       if (!node.children.length) throw new Error(`Line ${node.line}: when needs at least one nested block.`);
-      return `<div data-forma-when="${escapeHtml(key)}" data-forma-when-value="${escapeHtml(JSON.stringify(value))}">${node.children.map(child => renderNode(child, nested)).join('\\n')}</div>`;
+      return `<div data-forma-when="${escapeHtml(key)}" data-forma-when-value="${escapeHtml(JSON.stringify(value))}">${node.children.map(child => renderNode(child, nested)).join('\n')}</div>`;
     }
     case 'accordion': {
       assertAllowed(node, new Set(['item']));
