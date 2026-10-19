@@ -367,7 +367,7 @@ test('compiles advanced reveal settings and hover interactions', () => {
   assert.match(result.html, /data-reveal="fade-left"/);
   assert.match(result.html, /data-motion-duration="800ms"/);
   assert.match(result.html, /data-motion-delay="120ms"/);
-  assert.match(result.html, /--forma-motion-ease:cubic-bezier\(\.16,1,\.3,1\)/);
+  assert.match(result.html, /data-motion-easing="spring"/);
   assert.match(result.html, /data-hover="glow"/);
   assert.match(result.html, /data-reveal="blur"/);
   assert.match(result.css, /data-hover="tilt"/);
