@@ -1,13 +1,16 @@
 {
   "name": "forma-language",
-  "version": "0.4.0",
-  "private": true,
+  "version": "1.0.0",
+  "private": false,
   "type": "module",
-  "description": "A frontend language prototype with reusable components, design materials, motion, and reactive state.",
+  "description": "An early-release frontend language for expressive interfaces, motion, interactions, and reactive forms.",
   "scripts": {
     "build": "node src/cli.js examples/showcase.forma --out dist",
     "build:counter": "node src/cli.js examples/counter.forma --out dist-counter",
     "test": "node --test"
   },
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
 }

@@ -449,3 +449,27 @@ test('rejects empty or malformed interaction primitives', () => {
   assert.throws(() => compile('site "X"\n  page "/"\n    tooltip "Hint"\n      title "Not text"'), /tooltip expects a label and one nested text block/);
   assert.throws(() => compile('site "X"\n  page "/"\n    dropdown "Menu"'), /dropdown needs at least one 'option'/);
 });
+
+
+test('compiles accessible form controls, state bindings, and conditional blocks', () => {
+  const source = 'site "Forms"\n  page "/"\n    state email = ""\n    state subscribed = false\n    state country = "nz"\n    form "Contact form"\n      input email email "Email address"\n        required true\n      checkbox subscribed "Send me product updates"\n      select country "Country"\n        option "New Zealand" nz\n        option "Australia" au\n      textarea message "Message"\n        rows 5\n      when subscribed = true\n        text "You are subscribed."\n      submit "Send message"\n      success "Thanks, your message is ready."';
+  const result = compile(source);
+  assert.match(result.html, /type="email"[^>]* required/);
+  assert.match(result.html, /data-forma-input="email"/);
+  assert.match(result.html, /type="checkbox"[^>]*data-forma-input="subscribed"/);
+  assert.match(result.html, /<option value="nz">New Zealand<\/option>/);
+  assert.match(result.html, /<textarea[^>]*rows="5"/);
+  assert.match(result.html, /data-forma-when="subscribed"/);
+  assert.match(result.html, /data-forma-when-value="true"/);
+  assert.match(result.html, /data-forma-success hidden/);
+  assert.match(result.html, /type="submit"/);
+  assert.match(result.html, /forma:submit/);
+  assert.match(result.css, /\.forma-field input/);
+});
+
+test('rejects invalid form controls and undeclared conditional state', () => {
+  assert.throws(() => compile('site "X"\n  page "/"\n    input email color "Email"'), /unsupported input type/);
+  assert.throws(() => compile('site "X"\n  page "/"\n    select country "Country"'), /select needs at least one option/);
+  assert.throws(() => compile('site "X"\n  page "/"\n    when missing = true\n      text "Hidden"'), /state 'missing' has not been declared/);
+  assert.throws(() => compile('site "X"\n  page "/"\n    state ready = false\n    when ready\n      text "Malformed"'), /use when state = value/);
+});

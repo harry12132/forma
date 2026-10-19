@@ -25,3 +25,11 @@ jobs:
         run: npm run build
       - name: Build reactive counter
         run: npm run build:counter
+      - name: Install browser test dependencies
+        if: matrix.node-version == 22
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Run browser smoke tests
+        if: matrix.node-version == 22
+        run: node scripts/browser-smoke.mjs

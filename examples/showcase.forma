@@ -73,6 +73,11 @@ site "Forma Studio"
     panel
       title "Made for the moments between clicks."
       text "Interactions are part of the language now, not a separate pile of scripts."
+      accordion
+        item "What is Forma?"
+          text "An indentation-based frontend language that compiles into HTML and CSS."
+        item "Can I use forms?"
+          text "Yes. Inputs can bind to declared state, and forms dispatch a client-side submit event."
       tabs
         tab "Accordion"
           text "Group answers and details into a calm, collapsible list."
@@ -92,5 +97,19 @@ site "Forma Studio"
           title "A real browser dialog."
           text "Forma now gives interactive components a clear, declarative home."
           button "Got it" -> "#start"
+    state email = ""
+    state updates = false
+
+    panel
+      title "Forms, without the framework pile."
+      text "Fields, native validation, state binding, and conditional content are part of the language."
+      form "Join the demo list"
+        input email email "Email address"
+          required true
+        checkbox updates "Send me occasional updates"
+        when updates = true
+          text "You can change this preference any time."
+        submit "Preview submit"
+        success "Success state shown. No data was sent to a server."
     footer
-      text "Forma is an experimental open-source language project. Built for the details."
+      text "Forma is an early-release open-source language project. Built for the details."
