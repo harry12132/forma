@@ -89,7 +89,7 @@ export function parse(source) {
     }
 
     const argsRaw = match[2] || '';
-    const argsColumn = indent + match[1].length + (match[2] === undefined ? 1 : content.indexOf(match[2]) + 1);
+    const argsColumn = match[2] === undefined ? indent + match[1].length + 1 : indent + content.indexOf(match[2]) + 1;
     const node = {
       name: match[1],
       args: parseArgs(argsRaw, i + 1, argsColumn),
