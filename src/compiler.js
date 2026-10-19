@@ -417,13 +417,14 @@ function renderNode(node, context = {}) {
       return '';
     }
     case 'when': {
-      const match = node.args.join(' ').match(/^([A-Za-z_][\w]*)\s*=\s*(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*')$/);
-      if (!match) throw new Error(`Line ${node.line}: use when state = value, e.g. when subscribed = true.`);
-      const [, key, raw] = match;
-      if (!Object.hasOwn(states, key)) throw new Error(`Line ${node.line}: state '${key}' has not been declared.`);
-      const value = raw === 'true' ? true : raw === 'false' ? false : /^-?\d/.test(raw) ? Number(raw) : raw.slice(1,-1);
-      if (!node.children.length) throw new Error(`Line ${node.line}: when needs at least one nested block.`);
-      return `<div data-forma-when="${escapeHtml(key)}" data-forma-when-value="${escapeHtml(JSON.stringify(value))}">${node.children.map(child => renderNode(child, nested)).join('\n')}</div>`;
+      const [key, operator, raw] = node.args;
+      if (node.args.length !== 3 || !/^[A-Za-z_][\w]*$/.test(key || '') || operator !== '=' || raw === undefined) {
+        throw new Error(\`Line \${node.line}: use when state = value, e.g. when subscribed = true or when status = "Ready".\`);
+      }
+      if (!Object.hasOwn(states, key)) throw new Error(\`Line \${node.line}: state '\${key}' has not been declared.\`);
+      const value = raw === 'true' ? true : raw === 'false' ? false : /^-?\d+(?:\.\d+)?$/.test(raw) ? Number(raw) : raw;
+      if (!node.children.length) throw new Error(\`Line \${node.line}: when needs at least one nested block.\`);
+      return \`<div data-forma-when="\${escapeHtml(key)}" data-forma-when-value="\${escapeHtml(JSON.stringify(value))}">\${node.children.map(child => renderNode(child, nested)).join('\\n')}</div>\`;
     }
     case 'accordion': {
       assertAllowed(node, new Set(['item']));
