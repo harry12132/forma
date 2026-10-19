@@ -28,6 +28,14 @@ site "Forma · Feature Atlas"
       text "{description}"
 
   page "/"
+    state count = 0
+    state status = "Ready"
+    state showDetails = false
+    state contactEmail = ""
+    state wantsUpdates = false
+    state contactMethod = "email"
+    state messageText = ""
+
     nav
       logo "forma."
       link "Language" -> "#language"
@@ -442,9 +450,6 @@ site "Forma · Feature Atlas"
     panel
       title "09 / Reactive state"
       text "The little counter below uses declared state, text interpolation, click handlers, and set actions. Press the buttons to update the number."
-      state count = 0
-      state status = "Ready"
-      state showDetails = false
       card
         surface "glass"
         title "Counter playground"
@@ -490,10 +495,6 @@ site "Forma · Feature Atlas"
     panel
       title "10 / Forms and conditional content"
       text "Try the fields. This demo uses native browser validation, bound input state, a checkbox-driven conditional message, and a client-side success state."
-      state contactEmail = ""
-      state wantsUpdates = false
-      state contactMethod = "email"
-      state messageText = ""
       form "Forma interactive form demo"
         input contactEmail email "Email address"
           placeholder "you@example.com"
