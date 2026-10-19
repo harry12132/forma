@@ -1,4 +1,4 @@
-# Forma v.0.4
+# Forma v1.0
 
 Forma is an experimental frontend language prototype. Write `.forma` files; the compiler emits HTML and CSS that run in a browser. This release adds liquid-glass surfaces and ambient visual effects, alongside configurable scroll reveals, hover interactions, design tokens, and a small reactive runtime.
 
