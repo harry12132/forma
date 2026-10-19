@@ -23,9 +23,9 @@ try {
   await page.goto(`http://127.0.0.1:${server.address().port}/`);
   await page.getByRole('heading', { name: 'Interfaces, with feeling.' }).waitFor();
 
-  const detailsTab = page.getByRole('tab', { name: 'Details' });
+  const detailsTab = page.getByRole('tab', { name: 'Tabs' });
   await detailsTab.click();
-  await page.getByText('Second tab content.').waitFor({ state: 'visible' });
+  await page.getByText('Switch between related views without leaving the page.').waitFor({ state: 'visible' });
 
   const accordionItem = page.locator('.forma-accordion-item').filter({ hasText: 'Does it compile?' });
   await accordionItem.locator('summary').click();
