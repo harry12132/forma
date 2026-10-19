@@ -27,13 +27,13 @@ try {
   await detailsTab.click();
   await page.getByText('Switch between related views without leaving the page.').waitFor({ state: 'visible' });
 
-  const accordionItem = page.locator('.forma-accordion-item').filter({ hasText: 'Does it compile?' });
+  const accordionItem = page.locator('.forma-accordion-item').filter({ hasText: 'What is Forma?' });
   await accordionItem.locator('summary').click();
   assert.equal(await accordionItem.evaluate(element => element.open), true);
 
   await page.getByRole('button', { name: 'Preview a dialog' }).click();
   await page.locator('dialog.forma-dialog').waitFor({ state: 'visible' });
-  await page.getByRole('button', { name: 'Close dialog' }).click();
+  await page.getByRole('button', { name: /close/i }).click();
   await page.locator('dialog.forma-dialog').waitFor({ state: 'hidden' });
 
   const email = page.getByLabel('Email address');
