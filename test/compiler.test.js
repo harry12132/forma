@@ -97,7 +97,7 @@ test('compiles click actions that assign string state values', () => {
     '      on click',
     '        set status = "Ready"',
     '    text "Status: {status}"'
-  ].join('\\n');
+  ].join('\n');
   const result = compile(source);
   assert.match(result.html, /data-forma-action="assign:status:/);
   assert.match(result.html, /Ready/);
