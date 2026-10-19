@@ -221,7 +221,8 @@ function componentStyle(node, context, allowed) {
       result.classes.push('forma-surface-' + value);
     } else if (child.name === 'effect') {
       if (!['reflection','aurora','border-glow','none'].includes(value)) throw new Error(`Line ${child.line}: effect must be reflection, aurora, border-glow, or none.`);
-      if (value !== 'none') result.classes.push('forma-effect-' + value);\n    } else if (child.name === 'tone') {
+      if (value !== 'none') result.classes.push('forma-effect-' + value);
+    } else if (child.name === 'tone') {
       if (!['default','accent','muted','danger'].includes(value)) throw new Error(`Line ${child.line}: invalid tone '${value}'.`);
       if (value !== 'default') result.classes.push('forma-tone-' + value);
     } else {
