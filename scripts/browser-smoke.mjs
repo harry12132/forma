@@ -27,7 +27,7 @@ try {
   await detailsTab.click();
   await page.getByText('Switch between related views without leaving the page.').waitFor({ state: 'visible' });
 
-  const accordionItem = page.locator('details').filter({ hasText: 'What is Forma?' });
+  const accordionItem = page.locator('details').filter({ hasText: 'Can I use forms?' });
   await accordionItem.locator('summary').click();
   assert.equal(await accordionItem.evaluate(element => element.open), true);
 
