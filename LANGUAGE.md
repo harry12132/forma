@@ -72,7 +72,7 @@ The current compiler recognises these page elements:
 - `nav`: optional `logo`, plus `link` and link-style `button` children.
 - `hero`: `badge`, `title`, `text`, `button`, `panel`, and `animation`.
 - `cards`: groups `card` elements.
-- `card`: `title`, `text`, optional `material "glass"`, and `animation`.
+- `card`: `title`, `text`, optional `material "glass"` or `material "liquid-glass"`, and `animation`.
 - `panel`: general content, with optional `material "glass"` and `animation`.
 - `footer`: general content.
 - `stack`: vertical flex layout with `gap` and `align`.
@@ -129,7 +129,7 @@ text "Supporting detail"
   tone "muted"
 ```
 
-Buttons support `primary`, `secondary`, `quiet`, and `danger` variants. Cards and panels support `solid`, `soft`, and `glass` surfaces plus the `featured` variant. Text tones are `default`, `accent`, `muted`, and `danger`. `radius`, `shadow`, `font`, and `text-size` must reference tokens of the matching type. Existing `material "glass"` and button `style "secondary"` syntax remains supported.
+Buttons support `primary`, `secondary`, `quiet`, and `danger` variants. Cards and panels support `solid`, `soft`, `glass`, and `liquid-glass` surfaces plus the `featured` variant. Add `effect "reflection"`, `effect "aurora"`, or `effect "border-glow"` to create a moving light sweep, a softly animated ambient glow, or an accent-lit border. Use `effect "none"` to explicitly disable an effect. Text tones are `default`, `accent`, `muted`, and `danger`. `radius`, `shadow`, `font`, and `text-size` must reference tokens of the matching type. Existing `material "glass"` and button `style "secondary"` syntax remains supported.
 
 ## 6. Reusable components
 
