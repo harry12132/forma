@@ -438,9 +438,9 @@ test('compiles accessible accordion, tabs, tooltip, dropdown, and modal primitiv
   assert.match(result.html, /<dialog class="forma-dialog"/);
   assert.match(result.html, /data-forma-close-dialog/);
   assert.match(result.html, /ArrowRight/);
-  assert.match(result.css, /\\.forma-accordion-item/);
-  assert.match(result.css, /\\.forma-tab-button/);
-  assert.match(result.css, /\\.forma-dialog::backdrop/);
+  assert.match(result.css, /\.forma-accordion-item/);
+  assert.match(result.css, /\.forma-tab-button/);
+  assert.match(result.css, /\.forma-dialog::backdrop/);
 });
 
 test('rejects empty or malformed interaction primitives', () => {
