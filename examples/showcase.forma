@@ -18,8 +18,8 @@ site "Forma · Feature Atlas"
     accent "$lime"
 
   component FeatureCard
-    prop heading "Reusable component"
-    prop description "Defined once, reused with different content."
+    prop heading string "Reusable component"
+    prop description string "Defined once, reused with different content."
     card
       surface "glass"
       radius "$card"
