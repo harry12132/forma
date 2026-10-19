@@ -359,3 +359,27 @@ test('rejects invalid component variants and token types', () => {
   const wrongToken = ['site "X"','  theme','    token color blue "#00f"','  page "/"','    card','      radius "$blue"'].join('\n');
   assert.throws(() => compile(wrongToken), /must be declared as a radius token/);
 });
+
+
+test('compiles advanced reveal settings and hover interactions', () => {
+  const src = 'site "Motion"\n  page "/"\n    hero\n      title "Arrive with intent"\n      animation "fade-left"\n        duration "800ms"\n        delay "120ms"\n        easing spring\n    card\n      hover "glow"\n      animation "blur"\n        duration "700ms"\n      title "Depth"';
+  const result = compile(src);
+  assert.match(result.html, /data-reveal="fade-left"/);
+  assert.match(result.html, /--forma-motion-duration:800ms/);
+  assert.match(result.html, /--forma-motion-delay:120ms/);
+  assert.match(result.html, /--forma-motion-ease:cubic-bezier\(\.16,1,\.3,1\)/);
+  assert.match(result.html, /data-hover="glow"/);
+  assert.match(result.html, /data-reveal="blur"/);
+  assert.match(result.css, /data-hover="tilt"/);
+  assert.match(result.css, /prefers-reduced-motion/);
+});
+
+test('rejects unsupported reveal animations and hover interactions', () => {
+  assert.throws(() => compile('site "Motion"\n  page "/"\n    hero\n      animation "spin"'), /unsupported animation \'spin\'/);
+  assert.throws(() => compile('site "Motion"\n  page "/"\n    card\n      hover "wiggle"'), /hover must be lift, glow, scale, tilt, or none/);
+});
+
+test('rejects unsafe or excessively long motion settings', () => {
+  assert.throws(() => compile('site "Motion"\n  page "/"\n    hero\n      animation "fade-up"\n        duration "9999ms"'), /duration is too long/);
+  assert.throws(() => compile('site "Motion"\n  page "/"\n    hero\n      animation "fade-up"\n        easing "chaotic"'), /easing must be smooth, spring, snappy, or linear/);
+});
