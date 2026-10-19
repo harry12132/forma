@@ -219,7 +219,7 @@ function componentStyle(node, context, allowed) {
     } else if (child.name === 'surface') {
       if (!['solid','soft','glass','liquid-glass'].includes(value)) throw new Error(`Line ${child.line}: surface must be solid, soft, glass, or liquid-glass.`);
       result.classes.push('forma-surface-' + value);
-    } else if (child.name === 'tone') {
+    } else if (child.name === 'effect') {\n      if (!['reflection','aurora','border-glow','none'].includes(value)) throw new Error(`Line ${child.line}: effect must be reflection, aurora, border-glow, or none.`);\n      if (value !== 'none') result.classes.push('forma-effect-' + value);\n    } else if (child.name === 'tone') {
       if (!['default','accent','muted','danger'].includes(value)) throw new Error(`Line ${child.line}: invalid tone '${value}'.`);
       if (value !== 'default') result.classes.push('forma-tone-' + value);
     } else {
@@ -287,13 +287,13 @@ function renderNode(node, context = {}) {
     }
     case 'button': {
       const click = one(node, 'on');
-      const styled = componentStyle(node, nested, ['variant','radius','shadow','font','text-size','effect']);
+      const styled = componentStyle(node, nested, ['variant','radius','shadow','font','text-size','effect','surface']);
       const legacySecondary = node.args.includes('secondary') || node.children.some(c => c.name === 'style' && arg(c) === 'secondary');
       if (legacySecondary && !styled.className.split(' ').includes('forma-variant-secondary')) styled.className = className(styled.className, 'forma-variant-secondary');
       const buttonClass = escapeHtml(className('button', styled.className));
       if (click) {
         if (arg(click) !== 'click') throw new Error(`Line ${click.line}: only 'on click' is supported in this release.`);
-        assertAllowed(node, new Set(['on','style','variant','radius','shadow','font','text-size','hover','effect']));
+        assertAllowed(node, new Set(['on','style','variant','radius','shadow','font','text-size','hover','effect','surface']));
         if (!click.children.length) throw new Error(`Line ${click.line}: add an action inside 'on click'.`);
         const actions = click.children.map(action => {
           if (action.name !== 'set') throw new Error(`Line ${action.line}: only 'set' actions are supported inside 'on click'.`);
