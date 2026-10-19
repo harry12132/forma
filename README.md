@@ -1,6 +1,6 @@
-# Forma v.0.4
+# Forma v1.0.0 (early release)
 
-Forma is an experimental frontend language prototype. Write `.forma` files; the compiler emits HTML and CSS that run in a browser. This release adds liquid-glass surfaces and ambient visual effects, alongside configurable scroll reveals, hover interactions, design tokens, and a small reactive runtime.
+Forma is an early-release frontend language. Write `.forma` files; the compiler emits HTML and CSS that run in a browser. This release adds liquid-glass surfaces and ambient visual effects, alongside configurable scroll reveals, hover interactions, design tokens, and a small reactive runtime.
 
 ## Requirements
 
@@ -72,6 +72,7 @@ The parser lives in `src/parser.js` and produces a source-located syntax tree. T
 - `nav`, `hero`, `badge`, `title`, `text`, `link`, `button`
 - `cards`, `card`, `panel`, `footer`, `stack`, `row`, `grid`, `container`, `spacer`, `divider`
 - Interactive primitives: accordions, keyboard-navigable tabs, tooltips, dropdown menus, and native modal dialogs
+- Forms with native validation, state binding, conditional blocks, and client-side submit events
 - `material "glass"`
 - Scroll reveals: `fade-up`, `fade-down`, `fade-left`, `fade-right`, `fade`, `scale`, `zoom`, and `blur`, with configurable duration, delay, and easing
 - CSS hover interactions: `lift`, `glow`, `scale`, and `tilt`, with reduced-motion support
@@ -80,6 +81,10 @@ The parser lives in `src/parser.js` and produces a source-located syntax tree. T
 - Validated component styling for button variants, card and panel surfaces, text tones, and token-driven radius, shadow, font, and type size
 - Responsive styling, hover/press feedback, scroll reveals, and reduced-motion handling
 
+## Forms and conditional rendering
+
+Forms support native browser validation and client-side submit events, but do not send data to a backend by themselves. See [LANGUAGE.md](./LANGUAGE.md) for syntax and limitations.
+
 ## Scope and roadmap
 
-Forma compiles to HTML and CSS plus a small browser runtime for scroll reveals and basic reactive state. Conditional rendering, inputs and forms, multi-page routing, richer expressions, and a stable public language specification are not implemented yet. This is an experimental learning project, not a hardened compiler for untrusted input.
+Forma compiles to HTML and CSS plus a small browser runtime for scroll reveals and basic reactive state. Multi-page routing, general expressions, loops, server-side rendering, and a package ecosystem are not implemented. The language is early-release software; expect the specification to evolve. This is an experimental learning project, not a hardened compiler for untrusted input.
