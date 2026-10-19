@@ -191,7 +191,7 @@ site "Forma · Feature Atlas"
       grid
         columns 2
         gap "14px"
-        card
+        panel
           surface "soft"
           title "Colour tokens"
           text "Primary lime, sky blue, violet, and a dark surface are defined in the theme."
@@ -200,7 +200,7 @@ site "Forma · Feature Atlas"
             badge "Lime"
             badge "Sky"
             badge "Violet"
-        card
+        panel
           surface "soft"
           title "Radius tokens"
           text "The card token creates a large rounded corner; the pill token represents a fully rounded shape."
@@ -210,7 +210,7 @@ site "Forma · Feature Atlas"
               radius "$card"
             badge "Pill radius"
               radius "$pill"
-        card
+        panel
           surface "soft"
           title "Shadow token"
           text "The soft shadow token is applied to surfaces for consistent depth."
