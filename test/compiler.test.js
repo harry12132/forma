@@ -256,3 +256,55 @@ test('rejects malformed numeric property defaults', () => {
   ].join('\n');
   assert.throws(() => compile(src), /property 'count' on 'Metric' must be a number/);
 });
+
+test('compiles layout primitives with spacing, alignment, and grid columns', () => {
+  const src = [
+    'site "Layout"',
+    '  page "/"',
+    '    container',
+    '      max "960px"',
+    '      padding "20px"',
+    '      stack',
+    '        gap "24px"',
+    '        align center',
+    '        title "Layout system"',
+    '        row',
+    '          gap "12px"',
+    '          justify between',
+    '          text "Left"',
+    '          text "Right"',
+    '        grid',
+    '          columns 2',
+    '          gap "18px"',
+    '          card',
+    '            title "One"',
+    '          card',
+    '            title "Two"',
+    '        spacer "32px"',
+    '        divider'
+  ].join('\n');
+  const result = compile(src);
+  assert.match(result.html, /class="forma-container" style="max-width:960px;padding-inline:20px"/);
+  assert.match(result.html, /class="forma-stack" style="gap:24px;align-items:center"/);
+  assert.match(result.html, /class="forma-row" style="gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap"/);
+  assert.match(result.html, /class="forma-grid" style="gap:18px;--forma-columns:2"/);
+  assert.match(result.html, /class="forma-spacer"[^>]*height:32px/);
+  assert.match(result.html, /class="forma-divider"/);
+  assert.match(result.css, /grid-template-columns:repeat\(var\(--forma-columns,3\),minmax\(0,1fr\)\)/);
+  assert.match(result.css, /@media\(max-width:700px\)\{\.forma-grid\{grid-template-columns:1fr\}/);
+});
+
+test('rejects unsafe layout sizes', () => {
+  const src = ['site "Bad layout"', '  page "/"', '    stack', '      gap "calc(100% + 1px)"', '      text "Nope"'].join('\n');
+  assert.throws(() => compile(src), /Invalid size/);
+});
+
+test('rejects unsupported grid column counts', () => {
+  const src = ['site "Bad grid"', '  page "/"', '    grid', '      columns 12', '      text "Nope"'].join('\n');
+  assert.throws(() => compile(src), /'columns' must be an integer from 1 to 6/);
+});
+
+test('rejects invalid layout alignment values', () => {
+  const src = ['site "Bad alignment"', '  page "/"', '    row', '      align diagonal', '      text "Nope"'].join('\n');
+  assert.throws(() => compile(src), /invalid align 'diagonal'/);
+});
