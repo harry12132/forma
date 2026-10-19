@@ -21,7 +21,7 @@ try {
   browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
   await page.goto(`http://127.0.0.1:${server.address().port}/`);
-  await assert.doesNotReject(() => page.getByRole('heading', { name: 'Interfaces, with feeling.' }).waitFor());
+  await page.getByRole('heading', { name: 'Interfaces, with feeling.' }).waitFor();
 
   const detailsTab = page.getByRole('tab', { name: 'Details' });
   await detailsTab.click();
