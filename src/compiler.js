@@ -167,7 +167,7 @@ function layoutStyle(options, keys) {
   return declarations.length ? ` style="${escapeHtml(declarations.join(';'))}"` : '';
 }
 function layoutContent(node, context, settingNames) {
-  return node.children.filter(child => !settingNames.has(child.name)).map(child => renderNode(child, context)).join('\\n');
+  return node.children.filter(child => !settingNames.has(child.name)).map(child => renderNode(child, context)).join('\n');
 }
 
 function renderTextTag(node, tag, extra = '', props = {}, states = {}) { return `<${tag}${extra}>${renderBoundText(arg(node), props, states)}</${tag}>`; }
@@ -237,7 +237,7 @@ function renderNode(node, context = {}) {
       if (node.children.length) throw new Error(`Line ${node.line}: divider cannot contain children.`);
       return '<hr class="forma-divider">';
     }
-    case 'cards': return `<div class="cards">${node.children.map(c => renderNode(c, nested)).join('\\n')}</div>`;
+    case 'cards': return `<div class="cards">${node.children.map(c => renderNode(c, nested)).join('\n')}</div>`;
     case 'hero': {
       assertAllowed(node, new Set(['badge', 'title', 'text', 'button', 'panel', 'animation']));
       const anim = children(node, 'animation')[0];
