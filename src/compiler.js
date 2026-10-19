@@ -219,7 +219,9 @@ function componentStyle(node, context, allowed) {
     } else if (child.name === 'surface') {
       if (!['solid','soft','glass','liquid-glass'].includes(value)) throw new Error(`Line ${child.line}: surface must be solid, soft, glass, or liquid-glass.`);
       result.classes.push('forma-surface-' + value);
-    } else if (child.name === 'effect') {\n      if (!['reflection','aurora','border-glow','none'].includes(value)) throw new Error(`Line ${child.line}: effect must be reflection, aurora, border-glow, or none.`);\n      if (value !== 'none') result.classes.push('forma-effect-' + value);\n    } else if (child.name === 'tone') {
+    } else if (child.name === 'effect') {
+      if (!['reflection','aurora','border-glow','none'].includes(value)) throw new Error(`Line ${child.line}: effect must be reflection, aurora, border-glow, or none.`);
+      if (value !== 'none') result.classes.push('forma-effect-' + value);\n    } else if (child.name === 'tone') {
       if (!['default','accent','muted','danger'].includes(value)) throw new Error(`Line ${child.line}: invalid tone '${value}'.`);
       if (value !== 'default') result.classes.push('forma-tone-' + value);
     } else {
@@ -307,7 +309,8 @@ function renderNode(node, context = {}) {
     }
     case 'card': {
       assertAllowed(node, new Set(['title','text','material','animation','surface','variant','radius','shadow','hover','effect']));
-      const legacyMaterial = children(node, 'material').map(c => arg(c)).find(v => ['glass','liquid-glass'].includes(v));\n      const styled = componentStyle(node, nested, ['surface','variant','radius','shadow','effect']);
+      const legacyMaterial = children(node, 'material').map(c => arg(c)).find(v => ['glass','liquid-glass'].includes(v));
+      const styled = componentStyle(node, nested, ['surface','variant','radius','shadow','effect']);
       if (legacyMaterial && !styled.className.split(' ').some(v => v === 'forma-surface-glass' || v === 'forma-surface-liquid-glass')) styled.className = className(styled.className, 'forma-surface-' + legacyMaterial);
       const anim = children(node, 'animation')[0];
       return `<article class="${escapeHtml(className('card', styled.className))}"${styled.style}${hoverAttribute(node)}${motionAttributes(anim)}>${node.children.filter(c => ['title','text'].includes(c.name)).map(c => renderNode(c, nested)).join('')}</article>`;
