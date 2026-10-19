@@ -321,7 +321,23 @@ site "Forma · Feature Atlas"
           hover "tilt"
           title "Liquid glass, no extra effect"
           text "Materials and effects can be combined or explicitly disabled."
-      text "Legacy material "glass" and material "liquid-glass" syntax is also supported."
+      grid
+        columns 2
+        gap "14px"
+        panel
+          material "glass"
+          title "Legacy material syntax"
+          text "This surface uses the original glass material declaration."
+        panel
+          material "liquid-glass"
+          title "Legacy liquid-glass syntax"
+          text "The original liquid-glass material declaration remains supported."
+        card
+          surface "soft"
+          hover "none"
+          title "Hover disabled"
+          text "The none value explicitly disables hover interaction styling."
+      text "The original glass and liquid-glass material declarations remain supported."
 
     panel
       title "07 / Scroll reveals and hover states"
@@ -464,8 +480,7 @@ site "Forma · Feature Atlas"
             variant "secondary"
             on click
               set count = count - 1
-          button "Legacy secondary action"
-            secondary
+          button "Legacy secondary action" secondary
             on click
               set status = "Legacy secondary syntax"
           button "Reset count"
