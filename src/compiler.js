@@ -126,7 +126,7 @@ function coerceComponentProp(raw, schema, line, componentName) {
 }
 
 function parseState(node) {
-  if (node.args.length === 3 && /^[A-Za-z_][\\w]*$/.test(node.args[0]) && node.args[1] === '=' && node.args[2] === '') return [node.args[0], ''];
+  if (node.args.length === 3 && /^[A-Za-z_][\w]*$/.test(node.args[0]) && node.args[1] === '=' && node.args[2] === '') return [node.args[0], ''];
   const match = node.args.join(' ').match(/^([A-Za-z_][\w]*)\s*=\s*(-?\d+(?:\.\d+)?|true|false|\"[^\"]*\"|'[^']*')$/);
   if (!match) throw new Error(`Line ${node.line}: use 'state name = 0' with a number, boolean, or quoted string.`);
   let value = match[2];
