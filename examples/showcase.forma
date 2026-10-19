@@ -73,6 +73,11 @@ site "Forma Studio"
     panel
       title "Made for the moments between clicks."
       text "Interactions are part of the language now, not a separate pile of scripts."
+      accordion
+        item "What is Forma?"
+          text "An indentation-based frontend language that compiles into HTML and CSS."
+        item "Can I use forms?"
+          text "Yes. Inputs can bind to declared state, and forms dispatch a client-side submit event."
       tabs
         tab "Accordion"
           text "Group answers and details into a calm, collapsible list."
