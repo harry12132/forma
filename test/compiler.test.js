@@ -425,7 +425,7 @@ test('compiles accessible accordion, tabs, tooltip, dropdown, and modal primitiv
     '    modal "Open details"',
     '      title "A native dialog"',
     '      text "This content appears in a modal."'
-  ].join('\\n');
+  ].join('\n');
   const result = compile(src);
   assert.match(result.html, /class="forma-accordion"/);
   assert.match(result.html, /<details class="forma-accordion-item" open>/);
@@ -444,8 +444,8 @@ test('compiles accessible accordion, tabs, tooltip, dropdown, and modal primitiv
 });
 
 test('rejects empty or malformed interaction primitives', () => {
-  assert.throws(() => compile('site "X"\\n  page "/"\\n    accordion'), /accordion needs at least one 'item'/);
-  assert.throws(() => compile('site "X"\\n  page "/"\\n    tabs\\n      tab "Empty"'), /each tab needs a label and content/);
-  assert.throws(() => compile('site "X"\\n  page "/"\\n    tooltip "Hint"\\n      title "Not text"'), /tooltip expects a label and one nested text block/);
-  assert.throws(() => compile('site "X"\\n  page "/"\\n    dropdown "Menu"'), /dropdown needs at least one 'option'/);
+  assert.throws(() => compile('site "X"\n  page "/"\n    accordion'), /accordion needs at least one 'item'/);
+  assert.throws(() => compile('site "X"\n  page "/"\n    tabs\n      tab "Empty"'), /each tab needs a label and content/);
+  assert.throws(() => compile('site "X"\n  page "/"\n    tooltip "Hint"\n      title "Not text"'), /tooltip expects a label and one nested text block/);
+  assert.throws(() => compile('site "X"\n  page "/"\n    dropdown "Menu"'), /dropdown needs at least one 'option'/);
 });
