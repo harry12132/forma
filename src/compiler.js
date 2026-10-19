@@ -38,16 +38,45 @@ function checkedLength(value, fallback) {
 }
 function className(...parts) { return parts.filter(Boolean).join(' '); }
 function getTheme(theme) {
-  const result = { background: '#09090b', foreground: '#fafafa', accent: '#c6f36b', muted: '#a1a1aa', font: 'Inter' };
+  const result = { background: '#09090b', foreground: '#fafafa', accent: '#c6f36b', muted: '#a1a1aa', font: 'Inter', tokens: {} };
   if (!theme) return result;
-  assertAllowed(theme, new Set(['background', 'foreground', 'accent', 'muted', 'font']));
-  for (const child of theme.children) {
+  assertAllowed(theme, new Set(['background', 'foreground', 'accent', 'muted', 'font', 'token']));
+  for (const child of children(theme, 'token')) {
+    const [type, name, ...rawValue] = child.args;
+    const value = rawValue.join(' ');
+    if (!['color', 'radius', 'shadow', 'font', 'size'].includes(type)) throw new Error(\`Line \${child.line}: token type must be color, radius, shadow, font, or size.\`);
+    if (!/^[a-z][a-z0-9-]*$/.test(name || '')) throw new Error(\`Line \${child.line}: token names must start with a lowercase letter and contain only lowercase letters, numbers, and hyphens.\`);
+    if (!value || !child.args[2] || child.children.length) throw new Error(\`Line \${child.line}: use 'token color primary "#c6f36b"' with a type, name, and value.\`);
+    if (Object.hasOwn(result.tokens, name)) throw new Error(\`Line \${child.line}: token '\${name}' is declared more than once.\`);
+    let checked = value;
+    if (type === 'color') checked = checkedColor(value, '');
+    else if (type === 'radius' || type === 'size') {
+      checked = checkedLength(value, '');
+      if (!checked || ['none', 'auto'].includes(checked)) throw new Error(\`Line \${child.line}: \${type} tokens need a concrete CSS length.\`);
+      if (/^\d+(?:\.\d+)?$/.test(checked)) checked += 'px';
+    } else if (type === 'font') {
+      if (!/^[\w ,'-]{1,80}$/.test(value)) throw new Error(\`Line \${child.line}: invalid font token.\`);
+      checked = \`'\${value.replace(/['\\]/g, '')}'\`;
+    } else if (!/^[#(),.%\w\s-]{1,120}$/.test(value) || /[;{}]/.test(value)) {
+      throw new Error(\`Line \${child.line}: invalid shadow token value.\`);
+    }
+    result.tokens[name] = { type, value: checked, line: child.line };
+  }
+  for (const child of theme.children.filter(c => c.name !== 'token')) {
     const v = arg(child);
     if (child.name === 'font') {
-      if (!/^[\w ,'-]{1,80}$/.test(v)) throw new Error(`Line ${child.line}: invalid font name.`);
+      if (!/^[\w ,'-]{1,80}$/.test(v)) throw new Error(\`Line \${child.line}: invalid font name.\`);
       result.font = v;
-    } else result[child.name] = checkedColor(v, result[child.name]);
+    } else {
+      const match = /^\$([a-z][a-z0-9-]*)$/.exec(v);
+      if (match) {
+        const token = result.tokens[match[1]];
+        if (!token || token.type !== 'color') throw new Error(\`Line \${child.line}: '\${v}' must reference a declared color token.\`);
+        result[child.name] = token.value;
+      } else result[child.name] = checkedColor(v, result[child.name]);
+    }
   }
+  result.tokenCss = Object.entries(result.tokens).map(([name, token]) => \`--forma-\${token.type}-\${name}:\${token.value}\`).join(';');
   return result;
 }
 function interpolate(value, props = {}) {
@@ -285,7 +314,7 @@ function renderNode(node, context = {}) {
 }
 
 const CSS = `
-:root{color-scheme:dark;--bg:__BG__;--fg:__FG__;--accent:__ACCENT__;--muted:__MUTED__;--font:__FONT__}
+:root{color-scheme:dark;--bg:__BG__;--fg:__FG__;--accent:__ACCENT__;--muted:__MUTED__;--font:__FONT__;__TOKENS__}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -20%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 55%),var(--bg);color:var(--fg);font-family:var(--font),system-ui,-apple-system,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}.shell{max-width:1120px;margin:0 auto;padding:0 28px}.nav{height:84px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff12}.logo{font-weight:750;letter-spacing:-.06em;font-size:22px}.nav nav{display:flex;align-items:center;gap:25px}.nav-link{font-size:13px;color:var(--muted);transition:color .2s}.nav-link:hover{color:var(--fg)}.button{display:inline-flex;align-items:center;gap:16px;padding:12px 17px;border-radius:999px;background:var(--accent);color:#11130c;font-size:13px;font-weight:700;transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s}.button:hover{transform:translateY(-2px) scale(1.015);box-shadow:0 10px 32px color-mix(in srgb,var(--accent) 22%,transparent)}.button:active{transform:scale(.97)}.button span{font-size:16px}.button-secondary{background:#ffffff0b;color:var(--fg);border:1px solid #ffffff20}.hero{padding:116px 0 86px;max-width:850px}.badge{display:inline-flex;padding:7px 11px;border:1px solid #ffffff20;background:#ffffff08;border-radius:999px;color:var(--accent);font-size:11px;font-weight:650;letter-spacing:.06em;text-transform:uppercase}.hero h2,.section-title{font-size:clamp(42px,7vw,82px);line-height:.99;letter-spacing:-.075em;font-weight:600;margin:24px 0}.hero .copy{font-size:clamp(16px,2vw,20px);max-width:590px;line-height:1.7;color:var(--muted);margin:0 0 28px}.hero .button{margin-right:9px}.forma-stack{display:flex;flex-direction:column;gap:16px}.forma-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.forma-grid{display:grid;grid-template-columns:repeat(var(--forma-columns,3),minmax(0,1fr));gap:16px}.forma-container{width:100%;margin-inline:auto}.forma-spacer{width:100%;pointer-events:none}.forma-divider{border:0;border-top:1px solid #ffffff20;width:100%;margin:0}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:16px 0 90px}.card,.panel{border:1px solid #ffffff15;background:linear-gradient(145deg,#ffffff09,#ffffff03);border-radius:22px;padding:26px;min-height:190px;transition:border-color .3s,transform .35s cubic-bezier(.2,.8,.2,1)}.card:hover{transform:translateY(-4px);border-color:#ffffff35}.card h2,.panel h2,.section-title{font-size:23px;letter-spacing:-.045em;margin:0 0 12px}.copy{color:var(--muted);font-size:14px;line-height:1.8;margin:0}.glass{background:linear-gradient(135deg,#ffffff26,#ffffff09 42%,#ffffff12);backdrop-filter:blur(24px) saturate(1.45);-webkit-backdrop-filter:blur(24px) saturate(1.45);border-color:#ffffff35;box-shadow:inset 0 1px 0 #ffffff45,0 18px 60px #00000018;position:relative;overflow:hidden}.glass:before{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,#ffffff80,transparent);pointer-events:none}.footer{border-top:1px solid #ffffff12;padding:28px 0 38px;color:var(--muted);font-size:12px}.footer .copy{font-size:12px}.reveal{opacity:0;transform:translateY(18px);transition:opacity .65s ease,transform .65s cubic-bezier(.2,.8,.2,1)}.reveal.is-visible{opacity:1;transform:translateY(0)}[data-reveal="fade"]{transform:none}[data-reveal="fade-up"]{transform:translateY(18px)}[data-reveal="scale"]{transform:scale(.97)}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none}}@media(max-width:700px){.forma-grid{grid-template-columns:1fr}.shell{padding:0 19px}.nav{height:70px}.nav nav{gap:12px}.nav nav .nav-link:nth-of-type(n+3){display:none}.nav .button{padding:10px 12px}.hero{padding:86px 0 58px}.cards{grid-template-columns:1fr;padding-bottom:55px}.card{min-height:unset}.hero h2{font-size:clamp(43px,12vw,66px)}}
 `;
@@ -318,7 +347,7 @@ export function compile(source) {
     states[name] = value;
   }
   const content = page.children.filter(c => c.name !== 'state').map(c => renderNode(c, { components, props: {}, states, componentStack: [] })).join('\n');
-  const css = CSS.replace('__BG__', theme.background).replace('__FG__', theme.foreground).replace('__ACCENT__', theme.accent).replace('__MUTED__', theme.muted).replace('__FONT__', `'${theme.font.replace(/['\\]/g, '')}'`);
+  const css = CSS.replace('__BG__', theme.background).replace('__FG__', theme.foreground).replace('__ACCENT__', theme.accent).replace('__MUTED__', theme.muted).replace('__FONT__', `'${theme.font.replace(/['\\]/g, '')}'`).replace('__TOKENS__', theme.tokenCss);
   const title = escapeHtml(arg(site, 0, 'Forma app'));
   const html = `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<meta name="theme-color" content="${escapeHtml(theme.background)}">\n<title>${title}</title>\n<link rel="stylesheet" href="./style.css">\n</head>\n<body>\n<main class="shell">\n${content}\n</main>\n<script>document.documentElement.classList.add('js');const items=document.querySelectorAll('[data-reveal]');items.forEach(el=>el.classList.add('reveal'));if('IntersectionObserver'in window&&!matchMedia('(prefers-reduced-motion: reduce)').matches){const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-visible');io.unobserve(e.target)}}),{threshold:.12});items.forEach(el=>io.observe(el))}else{items.forEach(el=>el.classList.add('is-visible'))}const state=__FORMA_STATE__;function renderState(){document.querySelectorAll('[data-forma-bind]').forEach(el=>{const key=el.getAttribute('data-forma-bind');el.textContent=String(state[key])})}document.addEventListener('click',event=>{const button=event.target.closest('[data-forma-action]');if(!button)return;for(const action of button.dataset.formaAction.split('|')){const [kind,key,raw]=action.split(':');if(!(key in state))continue;if(kind==='add')state[key]=Number(state[key])+Number(raw);else if(kind==='subtract')state[key]=Number(state[key])-Number(raw);else if(kind==='assign'){try{state[key]=JSON.parse(decodeURIComponent(raw))}catch{}}}renderState()});renderState()</script>\n</body>\n</html>\n`.replace('__FORMA_STATE__', JSON.stringify(states).replace(/</g, '\\u003c'));
   return { html, css };
