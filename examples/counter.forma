@@ -1,0 +1,24 @@
+site "Forma Counter"
+  theme
+    background "#09090b"
+    foreground "#fafafa"
+    accent "#c6f36b"
+    muted "#a1a1aa"
+    font "Inter"
+  page "/"
+    hero
+      badge "FORMA RUNTIME · FIRST INTERACTIVE APP"
+      title "A little state goes a long way."
+      text "This counter is built with Forma state and click events. No framework or dependencies required."
+      panel
+        material "glass"
+        animation "fade-up"
+        title "Counter"
+        text "Current count: {count}"
+        button "Add one"
+          on click
+            set count = count + 1
+        button "Subtract one" secondary
+          on click
+            set count = count - 1
+    state count = 0
