@@ -70,9 +70,10 @@ The parser lives in `src/parser.js` and produces a source-located syntax tree. T
 
 - `site`, `theme`, `page`
 - `nav`, `hero`, `badge`, `title`, `text`, `link`, `button`
-- `cards`, `card`, `panel`, `footer`
+- `cards`, `card`, `panel`, `footer`, `stack`, `row`, `grid`, `container`, `spacer`, `divider`
 - `material "glass"`
 - `animation "fade-up"`, `animation "fade"`, and `animation "scale"`
+- Layout primitives with validated spacing, alignment, wrapping, and responsive grids
 - Responsive styling, hover/press feedback, scroll reveals, and reduced-motion handling
 
 ## Scope and roadmap
