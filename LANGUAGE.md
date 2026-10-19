@@ -81,6 +81,11 @@ The current compiler recognises these page elements:
 - `container`: centered content width with `max` and horizontal `padding`.
 - `spacer`: fixed vertical space, for example `spacer "32px"`.
 - `divider`: a horizontal separator.
+- `accordion`: collapsible `item "Title"` blocks, with the first item open by default.
+- `tabs`: keyboard-navigable `tab "Label"` panels with arrow-key, Home, and End support.
+- `tooltip "Label"`: an accessible hover/focus hint containing one nested `text` block.
+- `dropdown "Label"`: a compact disclosure menu containing `option "Label" -> "/path"` links.
+- `modal "Trigger label"`: a native dialog with nested content and a close control.
 - `title`, `text`, `badge`, `link`, and `button`: text and action elements.
 
 Layout settings are nested as simple child lines, for example `gap "24px"`, `align center`, `justify between`, `wrap true`, `columns 3`, `max "1200px"`, and `padding "24px"`. Sizes accept a limited, validated set of CSS lengths. Grid layouts collapse to one column on small screens.
@@ -108,7 +113,36 @@ card
 
 Reveal animations use the browser's Intersection Observer and respect the reduced-motion preference. Hover effects are CSS-only and remain lightweight.
 
-## 5. Component styling
+## 5. Interaction primitives
+
+```forma
+accordion
+  item "Can I collapse this?"
+    text "Yes. The first item starts open."
+  item "Is it native?"
+    text "Accordions use the browser's details and summary elements."
+
+tabs
+  tab "Overview"
+    text "The first panel starts selected."
+  tab "Details"
+    text "Use the arrow keys to move between tabs."
+
+tooltip "What does this do?"
+  text "A short hint shown on hover or keyboard focus."
+
+dropdown "Resources"
+  option "Documentation" -> "/docs"
+  option "Home" -> "/"
+
+modal "Open details"
+  title "A native dialog"
+  text "The browser handles dialog focus and Escape to close."
+```
+
+Tabs include ARIA roles and keyboard navigation. Accordions and dropdowns use native disclosure elements. Modals use the browser's native `dialog` element, including backdrop dismissal and Escape support. Tooltips appear on hover and keyboard focus. All primitives have visible focus styling and reduced-motion accommodations.
+
+## 6. Component styling
 
 Buttons, cards, panels, headings, text, and badges support styling blocks. Values are validated and token references must match their declared type.
 
@@ -131,7 +165,7 @@ text "Supporting detail"
 
 Buttons support `primary`, `secondary`, `quiet`, and `danger` variants. Cards and panels support `solid`, `soft`, `glass`, and `liquid-glass` surfaces plus the `featured` variant. Add `effect "reflection"`, `effect "aurora"`, or `effect "border-glow"` to create a moving light sweep, a softly animated ambient glow, or an accent-lit border. Use `effect "none"` to explicitly disable an effect. Text tones are `default`, `accent`, `muted`, and `danger`. `radius`, `shadow`, `font`, and `text-size` must reference tokens of the matching type. Existing `material "glass"` and button `style "secondary"` syntax remains supported.
 
-## 6. Reusable components
+## 7. Reusable components
 
 Define components directly inside `site`. Properties can use the legacy form `prop name "default value"`, or typed declarations such as `prop count number 3`, `prop enabled boolean false`, and required properties such as `prop heading string`. Supported types are `string`, `number`, and `boolean`. Properties are referenced in text using braces.
 
@@ -152,7 +186,7 @@ site "Example"
 
 Component names use PascalCase. Property names start with a letter or underscore and may then contain letters, numbers, or underscores. An instance may override a default by providing an indented property line. Omit the default to make a property required. Numeric values must be finite numbers, and boolean values must be `true` or `false`. Unknown, repeated, missing required, and incorrectly typed properties are errors. Legacy untyped string properties remain supported. Recursive component calls are rejected.
 
-## 7. Reactive state
+## 8. Reactive state
 
 Declare state inside `page`. Use `{name}` in text to bind it. A button can contain an `on click` block with `set` actions.
 
@@ -168,7 +202,7 @@ site "Counter"
 
 Initial state supports numbers, booleans, and quoted strings. The current runtime supports numeric addition/subtraction and simple assignments. It is not a general-purpose expression evaluator; conditional rendering, input binding, loops, and multi-page routing are not implemented.
 
-## 8. Compile and test
+## 9. Compile and test
 
 Requires Node.js 20 or newer. No third-party packages are required.
 
