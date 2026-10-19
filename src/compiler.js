@@ -270,7 +270,8 @@ function hoverAttribute(node) {
   if (!['lift','glow','scale','tilt','none'].includes(value)) throw new Error(`Line ${hover.line}: hover must be lift, glow, scale, tilt, or none.`);
   return value === 'none' ? '' : ` data-hover="${value}"`;
 }
-\nfunction renderNode(node, context = {}) {
+
+function renderNode(node, context = {}) {
   const { components = {}, props = {}, states = {}, componentStack = [], theme } = context;
   const nested = { components, props, states, componentStack, theme };
   switch (node.name) {
