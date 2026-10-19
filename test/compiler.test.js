@@ -156,3 +156,32 @@ test('accepts blank lines and comments without changing the syntax tree', () => 
   assert.equal(tree.children.length, 1);
   assert.equal(tree.children[0].children[0].name, 'page');
 });
+
+
+test('reports line and column for unterminated quoted values', () => {
+  assert.throws(
+    () => parse('site "X"\n  page "/"\n    title "Broken'),
+    /Line 3, column 11: unterminated quoted value/
+  );
+});
+
+test('reports line and column for characters after a quoted value', () => {
+  assert.throws(
+    () => parse('site "X"\n  page "/"\n    title "Hello"world'),
+    /Line 3, column 18: expected a space after a quoted value/
+  );
+});
+
+test('supports escaped quotes and backslashes in string arguments', () => {
+  const tree = parse('site "X"\n  page "/"\n    title "Say \\"hello\\""');
+  assert.equal(tree.children[0].children[0].children[0].args[0], 'Say "hello"');
+});
+
+test('normalises Windows and classic Mac line endings', () => {
+  const tree = parse('site "X"\r  page "/"\r    title "Hi"');
+  assert.equal(tree.children[0].children[0].children[0].name, 'title');
+});
+
+test('rejects non-string parser input with a clear type error', () => {
+  assert.throws(() => parse(null), /Forma source must be a string/);
+});
