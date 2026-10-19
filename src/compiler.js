@@ -65,6 +65,37 @@ function renderBoundText(value, props = {}, states = {}) {
     throw new Error(`Missing value for '{${part}}'. Declare it with 'state ${part} = ...' or a component 'prop'.`);
   }).join('');
 }
+function parseComponentProp(node, componentName) {
+  const name = arg(node);
+  if (!/^[A-Za-z_][\w]*$/.test(name)) throw new Error(`Line ${node.line}: invalid property name '${name}' in component '${componentName}'.`);
+  // Legacy: prop heading "Default". Typed: prop count number 3, prop enabled boolean false, or prop heading string.
+  const typed = ['string', 'number', 'boolean'].includes(node.args[1]);
+  const type = typed ? node.args[1] : 'string';
+  const hasDefault = typed ? node.args.length >= 3 : node.args.length >= 2;
+  if ((!typed && node.args.length > 2) || (typed && node.args.length > 3)) throw new Error(`Line ${node.line}: malformed declaration for property '${name}'. Use 'prop name string "value"', 'prop name number 3', or 'prop name boolean false'.`);
+  const defaultValue = hasDefault ? node.args[typed ? 2 : 1] : undefined;
+  if (hasDefault) coerceComponentProp(defaultValue, { name, type }, node.line, componentName);
+  return { name, type, hasDefault, defaultValue };
+}
+
+function coerceComponentProp(raw, schema, line, componentName) {
+  const { name, type } = schema;
+  if (type === 'string') return String(raw);
+  if (type === 'number') {
+    if (typeof raw === 'number') return raw;
+    if (!/^-?(?:\d+\.?\d*|\.\d+)$/.test(String(raw))) throw new Error(`Line ${line}: property '${name}' on '${componentName}' must be a number, received '${raw}'.`);
+    const value = Number(raw);
+    if (!Number.isFinite(value)) throw new Error(`Line ${line}: property '${name}' must be a finite number.`);
+    return value;
+  }
+  if (type === 'boolean') {
+    if (raw === true || raw === 'true') return true;
+    if (raw === false || raw === 'false') return false;
+    throw new Error(`Line ${line}: property '${name}' on '${componentName}' must be 'true' or 'false', received '${raw}'.`);
+  }
+  throw new Error(`Line ${line}: unsupported type '${type}' for property '${name}'.`);
+}
+
 function parseState(node) {
   const match = node.args.join(' ').match(/^([A-Za-z_][\w]*)\s*=\s*(-?\d+(?:\.\d+)?|true|false|\"[^\"]*\"|'[^']*')$/);
   if (!match) throw new Error(`Line ${node.line}: use 'state name = 0' with a number, boolean, or quoted string.`);
@@ -155,15 +186,23 @@ function renderNode(node, context = {}) {
       const definition = components[node.name];
       if (!definition) throw new Error(`Line ${node.line}: '${node.name}' is not supported yet.`);
       if (componentStack.includes(node.name)) throw new Error(`Line ${node.line}: recursive component '${node.name}' is not allowed.`);
-      const declared = new Map(children(definition, 'prop').map(p => [arg(p), p.args.slice(1).join(' ')]));
+      const declared = new Map(children(definition, 'prop').map(prop => {
+        const schema = parseComponentProp(prop, node.name);
+        return [schema.name, schema];
+      }));
       const passed = new Map();
       for (const child of node.children) {
         if (!declared.has(child.name)) throw new Error(`Line ${child.line}: unknown property '${child.name}' for component '${node.name}'.`);
         if (passed.has(child.name)) throw new Error(`Line ${child.line}: property '${child.name}' was provided more than once.`);
-        passed.set(child.name, arg(child));
+        if (child.children.length || child.args.length !== 1) throw new Error(`Line ${child.line}: property '${child.name}' expects exactly one value.`);
+        passed.set(child.name, child.args[0]);
       }
       const componentProps = {};
-      for (const [key, fallback] of declared) componentProps[key] = passed.has(key) ? passed.get(key) : fallback;
+      for (const [key, schema] of declared) {
+        if (!passed.has(key) && !schema.hasDefault) throw new Error(`Line ${node.line}: component '${node.name}' requires property '${key}' (${schema.type}).`);
+        const raw = passed.has(key) ? passed.get(key) : schema.defaultValue;
+        componentProps[key] = coerceComponentProp(raw, schema, node.line, node.name);
+      }
       const body = definition.children.filter(c => c.name !== 'prop');
       if (!body.length) throw new Error(`Line ${definition.line}: component '${node.name}' has no content.`);
       const nextContext = { components, props: componentProps, states, componentStack: [...componentStack, node.name] };
@@ -190,7 +229,7 @@ export function compile(source) {
     if (components[name]) throw new Error(`Line ${definition.line}: component '${name}' is defined more than once.`);
     for (const prop of children(definition, 'prop')) {
       const propName = arg(prop);
-      if (!/^[A-Za-z_][\w]*$/.test(propName)) throw new Error(`Line ${prop.line}: invalid property name '${propName}'.`);
+      parseComponentProp(prop, name);
       if (children(definition, 'prop').filter(p => arg(p) === propName).length > 1) throw new Error(`Line ${prop.line}: property '${propName}' is declared more than once in '${name}'.`);
     }
     components[name] = definition;

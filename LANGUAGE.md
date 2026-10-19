@@ -64,7 +64,7 @@ Supported animation names are `fade-up`, `fade`, and `scale`. Animation effects 
 
 ## 5. Reusable components
 
-Define components directly inside `site`. Properties are declared with `prop name "default value"` and referenced in text using braces.
+Define components directly inside `site`. Properties can use the legacy form `prop name "default value"`, or typed declarations such as `prop count number 3`, `prop enabled boolean false`, and required properties such as `prop heading string`. Supported types are `string`, `number`, and `boolean`. Properties are referenced in text using braces.
 
 ```forma
 site "Example"
@@ -81,7 +81,7 @@ site "Example"
         heading "Made with Forma"
 ```
 
-Component names use PascalCase. Property names start with a letter or underscore and may then contain letters, numbers, or underscores. An instance may override a default by providing an indented property line. Unknown, repeated, and undeclared properties are errors. Recursive component calls are rejected.
+Component names use PascalCase. Property names start with a letter or underscore and may then contain letters, numbers, or underscores. An instance may override a default by providing an indented property line. Omit the default to make a property required. Numeric values must be finite numbers, and boolean values must be `true` or `false`. Unknown, repeated, missing required, and incorrectly typed properties are errors. Legacy untyped string properties remain supported. Recursive component calls are rejected.
 
 ## 6. Reactive state
 
