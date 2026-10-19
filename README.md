@@ -1,6 +1,6 @@
 # Forma v.0.4
 
-Forma is an experimental frontend language prototype. Write `.forma` files; the compiler emits HTML and CSS that run in a browser. This release adds a first reactive runtime with state, text bindings, and click actions, alongside reusable components with declared properties and default values.
+Forma is an experimental frontend language prototype. Write `.forma` files; the compiler emits HTML and CSS that run in a browser. This release adds a first reactive runtime with state, text bindings, and click actions, alongside reusable components with typed properties, validated defaults, and required values.
 
 ## Requirements
 
@@ -56,7 +56,7 @@ site "My App"
         heading "Defaults included"
 ```
 
-A component's property defaults are used when an instance does not provide that property. Unknown properties, duplicate property declarations, missing interpolated values, and recursive component calls produce build errors. Component names use PascalCase.
+A component's property defaults are used when an instance does not provide that property. Properties support `string`, `number`, and `boolean` types, with required properties available by omitting the default. Invalid values, unknown properties, duplicate declarations, missing required values, missing interpolated values, and recursive component calls produce build errors. Existing untyped string properties remain compatible. Component names use PascalCase.
 
 ## Language reference
 
