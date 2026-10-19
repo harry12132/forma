@@ -185,3 +185,74 @@ test('normalises Windows and classic Mac line endings', () => {
 test('rejects non-string parser input with a clear type error', () => {
   assert.throws(() => parse(null), /Forma source must be a string/);
 });
+
+test('supports typed component properties with defaults and coercion', () => {
+  const src = [
+    'site "Typed props"',
+    '  component Metric',
+    '    prop label string "Visits"',
+    '    prop count number 12',
+    '    prop featured boolean false',
+    '    panel',
+    '      title "{label}: {count}"',
+    '      text "Featured: {featured}"',
+    '  page "/"',
+    '    Metric',
+    '      label "Monthly visits"',
+    '      count 42',
+    '      featured true'
+  ].join('\n');
+  const result = compile(src);
+  assert.match(result.html, /Monthly visits: 42/);
+  assert.match(result.html, /Featured: true/);
+});
+
+test('requires typed properties when no default is declared', () => {
+  const src = [
+    'site "Required props"',
+    '  component Profile',
+    '    prop name string',
+    '    text "Hello {name}"',
+    '  page "/"',
+    '    Profile'
+  ].join('\n');
+  assert.throws(() => compile(src), /component 'Profile' requires property 'name' \(string\)/);
+});
+
+test('rejects a component property with the wrong declared type', () => {
+  const src = [
+    'site "Type checks"',
+    '  component Metric',
+    '    prop count number 1',
+    '    text "Count: {count}"',
+    '  page "/"',
+    '    Metric',
+    '      count "many"'
+  ].join('\n');
+  assert.throws(() => compile(src), /property 'count' on 'Metric' must be a number/);
+});
+
+test('rejects invalid boolean property values', () => {
+  const src = [
+    'site "Boolean props"',
+    '  component Flag',
+    '    prop enabled boolean false',
+    '    text "Enabled: {enabled}"',
+    '  page "/"',
+    '    Flag',
+    '      enabled yes'
+  ].join('\n');
+  assert.throws(() => compile(src), /property 'enabled' on 'Flag' must be 'true' or 'false'/);
+});
+
+test('rejects malformed numeric property defaults', () => {
+  const src = [
+    'site "Malformed props"',
+    '  component Metric',
+    '    prop count number many',
+    '    text "Count: {count}"',
+    '  page "/"',
+    '    Metric'
+  ].join('\n');
+  assert.throws(() => compile(src), /property 'count' on 'Metric' must be a number/);
+});
