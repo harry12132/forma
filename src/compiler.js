@@ -140,15 +140,15 @@ function parseSetAction(node, states) {
   const args = node.args;
   const target = args[0];
   if (!/^[A-Za-z_][\w]*$/.test(target || '') || args[1] !== '=') {
-    throw new Error(\`Line \${node.line}: unsupported action. Try 'set count = count + 1'.\`);
+    throw new Error(`Line ${node.line}: unsupported action. Try 'set count = count + 1'.`);
   }
-  if (!Object.hasOwn(states, target)) throw new Error(\`Line \${node.line}: state '\${target}' has not been declared.\`);
+  if (!Object.hasOwn(states, target)) throw new Error(`Line ${node.line}: state '${target}' has not been declared.`);
 
   if (args.length === 5 && (args[3] === '+' || args[3] === '-') && args[2] === target && /^-?\d+(?:\.\d+)?$/.test(args[4])) {
-    return \`\${args[3] === '+' ? 'add' : 'subtract'}:\${target}:\${Number(args[4])}\`;
+    return `${args[3] === '+' ? 'add' : 'subtract'}:${target}:${Number(args[4])}`;
   }
   if (args.length !== 3) {
-    throw new Error(\`Line \${node.line}: unsupported action. Try 'set count = count + 1'.\`);
+    throw new Error(`Line ${node.line}: unsupported action. Try 'set count = count + 1'.`);
   }
 
   const source = args[2];
@@ -158,7 +158,7 @@ function parseSetAction(node, states) {
   else if (Object.hasOwn(states, source)) value = states[source];
   else value = source;
 
-  return \`assign:\${target}:\${encodeURIComponent(JSON.stringify(value))}\`;
+  return `assign:${target}:${encodeURIComponent(JSON.stringify(value))}`;
 }
 function parseLink(node, props = {}) {
   const match = interpolate(node.args.join(' '), props).match(/^(.+?)\s*->\s*(.+)$/);
