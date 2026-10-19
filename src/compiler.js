@@ -126,15 +126,15 @@ function coerceComponentProp(raw, schema, line, componentName) {
 }
 
 function parseState(node) {
-  if (node.args.length === 3 && /^[A-Za-z_][\w]*$/.test(node.args[0]) && node.args[1] === '=' && node.args[2] === '') return [node.args[0], ''];
-  const match = node.args.join(' ').match(/^([A-Za-z_][\w]*)\s*=\s*(-?\d+(?:\.\d+)?|true|false|\"[^\"]*\"|'[^']*')$/);
-  if (!match) throw new Error(`Line ${node.line}: use 'state name = 0' with a number, boolean, or quoted string.`);
-  let value = match[2];
-  if (/^-?\d/.test(value)) value = Number(value);
-  else if (value === 'true') value = true;
-  else if (value === 'false') value = false;
-  else value = value.slice(1, -1);
-  return [match[1], value];
+  if (node.args.length !== 3 || !/^[A-Za-z_][\w]*$/.test(node.args[0]) || node.args[1] !== '=') {
+    throw new Error(`Line ${node.line}: use 'state name = value' with a number, boolean, or string.`);
+  }
+  const raw = node.args[2];
+  let value = raw;
+  if (/^-?\d+(?:\.\d+)?$/.test(raw)) value = Number(raw);
+  else if (raw === 'true') value = true;
+  else if (raw === 'false') value = false;
+  return [node.args[0], value];
 }
 function parseSetAction(node, states) {
   const match = node.args.join(' ').match(/^([A-Za-z_][\w]*)\s*=\s*([A-Za-z_][\w]*|true|false|-?\d+(?:\.\d+)?|\"[^\"]*\"|'[^']*')\s*([+\-])?\s*(-?\d+(?:\.\d+)?)?$/);
