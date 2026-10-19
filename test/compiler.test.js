@@ -365,8 +365,8 @@ test('compiles advanced reveal settings and hover interactions', () => {
   const src = 'site "Motion"\n  page "/"\n    hero\n      title "Arrive with intent"\n      animation "fade-left"\n        duration "800ms"\n        delay "120ms"\n        easing spring\n    card\n      hover "glow"\n      animation "blur"\n        duration "700ms"\n      title "Depth"';
   const result = compile(src);
   assert.match(result.html, /data-reveal="fade-left"/);
-  assert.match(result.html, /--forma-motion-duration:800ms/);
-  assert.match(result.html, /--forma-motion-delay:120ms/);
+  assert.match(result.html, /data-motion-duration="800ms"/);
+  assert.match(result.html, /data-motion-delay="120ms"/);
   assert.match(result.html, /--forma-motion-ease:cubic-bezier\(\.16,1,\.3,1\)/);
   assert.match(result.html, /data-hover="glow"/);
   assert.match(result.html, /data-reveal="blur"/);
