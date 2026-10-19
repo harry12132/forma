@@ -72,7 +72,8 @@ The parser lives in `src/parser.js` and produces a source-located syntax tree. T
 - `nav`, `hero`, `badge`, `title`, `text`, `link`, `button`
 - `cards`, `card`, `panel`, `footer`, `stack`, `row`, `grid`, `container`, `spacer`, `divider`
 - `material "glass"`
-- `animation "fade-up"`, `animation "fade"`, and `animation "scale"`
+- Scroll reveals: `fade-up`, `fade-down`, `fade-left`, `fade-right`, `fade`, `scale`, `zoom`, and `blur`, with configurable duration, delay, and easing
+- CSS hover interactions: `lift`, `glow`, `scale`, and `tilt`, with reduced-motion support
 - Layout primitives with validated spacing, alignment, wrapping, and responsive grids
 - Named design tokens for colours, radii, shadows, font families, and sizes, exposed as CSS custom properties; semantic theme colours can reference colour tokens
 - Validated component styling for button variants, card and panel surfaces, text tones, and token-driven radius, shadow, font, and type size
