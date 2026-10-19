@@ -58,6 +58,10 @@ site "My App"
 
 A component's property defaults are used when an instance does not provide that property. Unknown properties, duplicate property declarations, missing interpolated values, and recursive component calls produce build errors. Component names use PascalCase.
 
+## Language reference
+
+The initial syntax rules and supported block conventions are documented in [LANGUAGE.md](./LANGUAGE.md). The compiler reports source line numbers for syntax and validation errors where available.
+
 ## Existing features
 
 - `site`, `theme`, `page`

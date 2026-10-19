@@ -114,3 +114,45 @@ test('escapes dynamic text bindings instead of injecting HTML', () => {
   const result = compile(src);
   assert.match(result.html, /data-forma-bind="count">0<\/span>/);
 });
+
+
+test('requires top-level blocks to begin at column one', () => {
+  assert.throws(
+    () => parse('  site "X"\n  page "/"'),
+    /Line 1: top-level blocks must start at column 1/
+  );
+});
+
+test('rejects tabs used for indentation with a useful line number', () => {
+  assert.throws(
+    () => parse('site "X"\n\tpage "/"'),
+    /Line 2: use spaces for indentation, not tabs/
+  );
+});
+
+test('rejects indentation that skips a nesting level', () => {
+  assert.throws(
+    () => parse('site "X"\n    page "/"'),
+    /Line 2: indentation jumped too far/
+  );
+});
+
+test('rejects odd indentation widths', () => {
+  assert.throws(
+    () => parse('site "X"\n page "/"'),
+    /Line 2: indentation must use multiples of two spaces/
+  );
+});
+
+test('rejects a child block indented by more than two spaces', () => {
+  assert.throws(
+    () => parse('site "X"\n  page "/"\n      title "Hello"'),
+    /Line 3: indentation jumped too far/
+  );
+});
+
+test('accepts blank lines and comments without changing the syntax tree', () => {
+  const tree = parse('# top comment\nsite "X"\n\n  # page comment\n  page "/"');
+  assert.equal(tree.children.length, 1);
+  assert.equal(tree.children[0].children[0].name, 'page');
+});
