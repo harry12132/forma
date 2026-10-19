@@ -1,6 +1,6 @@
 # Forma Language Reference
 
-Status: experimental, matching the current compiler.
+Status: early release. This reference documents the syntax currently implemented by the compiler.
 
 Forma is an indentation-based language that compiles a `.forma` source file into `index.html` and `style.css`. The compiler and browser runtime are intentionally dependency-free.
 
@@ -86,6 +86,11 @@ The current compiler recognises these page elements:
 - `tooltip "Label"`: an accessible hover/focus hint containing one nested `text` block.
 - `dropdown "Label"`: a compact disclosure menu containing `option "Label" -> "/path"` links.
 - `modal "Trigger label"`: a native dialog with nested content and a close control.
+- `form "Label"`: a native form with browser validation, a success message, and a `forma:submit` event.
+- `input name type "Label"`: text, email, password, number, telephone, or URL fields.
+- `textarea name "Label"`, `checkbox name "Label"`, and `select name "Label"` with `option "Label" value` children.
+- `submit "Label"`: submits its containing form. `success "Message"` defines its confirmation message.
+- `when state = value`: conditionally displays nested content when a declared state matches.
 - `title`, `text`, `badge`, `link`, and `button`: text and action elements.
 
 Layout settings are nested as simple child lines, for example `gap "24px"`, `align center`, `justify between`, `wrap true`, `columns 3`, `max "1200px"`, and `padding "24px"`. Sizes accept a limited, validated set of CSS lengths. Grid layouts collapse to one column on small screens.
