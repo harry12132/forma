@@ -238,7 +238,39 @@ function renderTextTag(node, tag, baseClass, props = {}, states = {}, context = 
   const styled = componentStyle(node, context, ['tone','font','text-size']);
   return `<${tag} class="${escapeHtml(className(baseClass, styled.className))}"${styled.style}>${renderBoundText(arg(node), props, states)}</${tag}>`;
 }
-function renderNode(node, context = {}) {
+function motionAttributes(node) {
+  if (!node) return '';
+  if (node.args.length !== 1 || node.children.some(child => !['duration','delay','easing'].includes(child.name))) {
+    throw new Error(`Line ${node.line}: animation expects a name and optional duration, delay, and easing settings.`);
+  }
+  const name = arg(node);
+  const names = ['fade-up','fade-down','fade-left','fade-right','fade','scale','zoom','blur'];
+  if (!names.includes(name)) throw new Error(`Line ${node.line}: unsupported animation '${name}'. Use ${names.join(', ')}.`);
+  const values = { duration: '650ms', delay: '0ms', easing: 'smooth' };
+  for (const child of node.children) {
+    if (child.children.length || child.args.length !== 1) throw new Error(`Line ${child.line}: '${child.name}' expects one value.`);
+    const value = arg(child);
+    if (child.name === 'duration' || child.name === 'delay') {
+      if (!/^(?:0|[1-9]\\d{0,3})(?:ms|s)$/.test(value)) throw new Error(`Line ${child.line}: ${child.name} must be a time such as "650ms" or "0.4s" (up to 9999ms).`);
+      const amount = Number.parseFloat(value) * (value.endsWith('s') && !value.endsWith('ms') ? 1000 : 1);
+      if (amount > (child.name === 'duration' ? 3000 : 5000)) throw new Error(`Line ${child.line}: ${child.name} is too long.`);
+    } else if (!['smooth','spring','snappy','linear'].includes(value)) {
+      throw new Error(`Line ${child.line}: easing must be smooth, spring, snappy, or linear.`);
+    }
+    values[child.name] = value;
+  }
+  const easing = ({smooth:'cubic-bezier(.2,.8,.2,1)',spring:'cubic-bezier(.16,1,.3,1)',snappy:'cubic-bezier(.2,.9,.25,1)',linear:'linear'})[values.easing];
+  return ` data-reveal="${escapeHtml(name)}" style="--forma-motion-duration:${escapeHtml(values.duration)};--forma-motion-delay:${escapeHtml(values.delay)};--forma-motion-ease:${easing}"`;
+}
+function hoverAttribute(node) {
+  const hover = one(node, 'hover');
+  if (!hover) return '';
+  if (hover.children.length || hover.args.length !== 1) throw new Error(`Line ${hover.line}: hover expects one value: lift, glow, scale, tilt, or none.`);
+  const value = arg(hover);
+  if (!['lift','glow','scale','tilt','none'].includes(value)) throw new Error(`Line ${hover.line}: hover must be lift, glow, scale, tilt, or none.`);
+  return value === 'none' ? '' : ` data-hover="${value}"`;
+}
+\nfunction renderNode(node, context = {}) {
   const { components = {}, props = {}, states = {}, componentStack = [], theme } = context;
   const nested = { components, props, states, componentStack, theme };
   switch (node.name) {
@@ -260,25 +292,25 @@ function renderNode(node, context = {}) {
       const buttonClass = escapeHtml(className('button', styled.className));
       if (click) {
         if (arg(click) !== 'click') throw new Error(`Line ${click.line}: only 'on click' is supported in this release.`);
-        assertAllowed(node, new Set(['on','style','variant','radius','shadow','font','text-size']));
+        assertAllowed(node, new Set(['on','style','variant','radius','shadow','font','text-size','hover']));
         if (!click.children.length) throw new Error(`Line ${click.line}: add an action inside 'on click'.`);
         const actions = click.children.map(action => {
           if (action.name !== 'set') throw new Error(`Line ${action.line}: only 'set' actions are supported inside 'on click'.`);
           return parseSetAction(action, states);
         });
         const label = renderBoundText(arg(node), props, states);
-        return `<button type="button" class="${buttonClass}"${styled.style} data-forma-action="${escapeHtml(actions.join('|'))}">${label}</button>`;
+        return `<button type="button" class="${buttonClass}"${styled.style}${hoverAttribute(node)} data-forma-action="${escapeHtml(actions.join('|'))}">${label}</button>`;
       }
       const { label, href } = parseLink(node, props);
-      return `<a class="${buttonClass}"${styled.style} href="${escapeHtml(href)}">${escapeHtml(label)}<span aria-hidden="true">↗</span></a>`;
+      return `<a class="${buttonClass}"${styled.style}${hoverAttribute(node)} href="${escapeHtml(href)}">${escapeHtml(label)}<span aria-hidden="true">↗</span></a>`;
     }
     case 'card': {
-      assertAllowed(node, new Set(['title','text','material','animation','surface','variant','radius','shadow']));
+      assertAllowed(node, new Set(['title','text','material','animation','surface','variant','radius','shadow','hover']));
       const legacyGlass = children(node, 'material').some(c => arg(c) === 'glass');
       const styled = componentStyle(node, nested, ['surface','variant','radius','shadow']);
       if (legacyGlass && !styled.className.split(' ').includes('forma-surface-glass')) styled.className = className(styled.className, 'forma-surface-glass');
       const anim = children(node, 'animation')[0];
-      return `<article class="${escapeHtml(className('card', styled.className))}"${styled.style}${anim ? ` data-reveal="${escapeHtml(arg(anim))}"` : ''}>${node.children.filter(c => ['title','text'].includes(c.name)).map(c => renderNode(c, nested)).join('')}</article>`;
+      return `<article class="${escapeHtml(className('card', styled.className))}"${styled.style}${hoverAttribute(node)}${motionAttributes(anim)}>${node.children.filter(c => ['title','text'].includes(c.name)).map(c => renderNode(c, nested)).join('')}</article>`;
     }
     case 'panel': {
       const legacyGlass = children(node, 'material').some(c => arg(c) === 'glass');
@@ -319,7 +351,7 @@ function renderNode(node, context = {}) {
       assertAllowed(node, new Set(['badge', 'title', 'text', 'button', 'panel', 'animation']));
       const anim = children(node, 'animation')[0];
       const content = node.children.filter(c => c.name !== 'animation').map(c => renderNode(c, nested)).join('\n');
-      return `<section class="hero"${anim ? ` data-reveal="${escapeHtml(arg(anim))}"` : ''}>${content}</section>`;
+      return `<section class="hero"${motionAttributes(anim)}>${content}</section>`;
     }
     case 'nav': {
       assertAllowed(node, new Set(['logo','link','button']));
@@ -360,7 +392,7 @@ function renderNode(node, context = {}) {
 const CSS = `
 :root{color-scheme:dark;--bg:__BG__;--fg:__FG__;--accent:__ACCENT__;--muted:__MUTED__;--font:__FONT__;__TOKENS__}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -20%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 55%),var(--bg);color:var(--fg);font-family:var(--font),system-ui,-apple-system,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
-a{color:inherit;text-decoration:none}.shell{max-width:1120px;margin:0 auto;padding:0 28px}.nav{height:84px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff12}.logo{font-weight:750;letter-spacing:-.06em;font-size:22px}.nav nav{display:flex;align-items:center;gap:25px}.nav-link{font-size:13px;color:var(--muted);transition:color .2s}.nav-link:hover{color:var(--fg)}.button{display:inline-flex;align-items:center;gap:16px;padding:12px 17px;border-radius:999px;background:var(--accent);color:#11130c;font-size:13px;font-weight:700;transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s}.button:hover{transform:translateY(-2px) scale(1.015);box-shadow:0 10px 32px color-mix(in srgb,var(--accent) 22%,transparent)}.button:active{transform:scale(.97)}.button span{font-size:16px}.button-secondary,.forma-variant-secondary{background:#ffffff0b;color:var(--fg);border:1px solid #ffffff20}.forma-variant-quiet{background:transparent;color:var(--fg);border:1px solid transparent}.forma-variant-danger{background:#ef4444;color:#fff}.forma-variant-featured{border-color:color-mix(in srgb,var(--accent) 65%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 22%,transparent)}.forma-surface-solid{background:var(--bg);border-color:#ffffff24}.forma-surface-soft{background:color-mix(in srgb,var(--fg) 5%,var(--bg));border-color:#ffffff12}.forma-surface-glass{background:linear-gradient(135deg,#ffffff26,#ffffff09 42%,#ffffff12);backdrop-filter:blur(24px) saturate(1.45);-webkit-backdrop-filter:blur(24px) saturate(1.45);border-color:#ffffff35;box-shadow:inset 0 1px 0 #ffffff45,0 18px 60px #00000018;position:relative;overflow:hidden}.forma-tone-accent{color:var(--accent)}.forma-tone-muted{color:var(--muted)}.forma-tone-danger{color:#ef4444}.forma-tone-accent.button{background:var(--accent);color:#11130c}.forma-tone-danger.button{background:#ef4444;color:#fff}.hero{padding:116px 0 86px;max-width:850px}.badge{display:inline-flex;padding:7px 11px;border:1px solid #ffffff20;background:#ffffff08;border-radius:999px;color:var(--accent);font-size:11px;font-weight:650;letter-spacing:.06em;text-transform:uppercase}.hero h2,.section-title{font-size:clamp(42px,7vw,82px);line-height:.99;letter-spacing:-.075em;font-weight:600;margin:24px 0}.hero .copy{font-size:clamp(16px,2vw,20px);max-width:590px;line-height:1.7;color:var(--muted);margin:0 0 28px}.hero .button{margin-right:9px}.forma-stack{display:flex;flex-direction:column;gap:16px}.forma-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.forma-grid{display:grid;grid-template-columns:repeat(var(--forma-columns,3),minmax(0,1fr));gap:16px}.forma-container{width:100%;margin-inline:auto}.forma-spacer{width:100%;pointer-events:none}.forma-divider{border:0;border-top:1px solid #ffffff20;width:100%;margin:0}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:16px 0 90px}.card,.panel{border:1px solid #ffffff15;background:linear-gradient(145deg,#ffffff09,#ffffff03);border-radius:22px;padding:26px;min-height:190px;transition:border-color .3s,transform .35s cubic-bezier(.2,.8,.2,1)}.card:hover{transform:translateY(-4px);border-color:#ffffff35}.card h2,.panel h2,.section-title{font-size:23px;letter-spacing:-.045em;margin:0 0 12px}.copy{color:var(--muted);font-size:14px;line-height:1.8;margin:0}.glass{background:linear-gradient(135deg,#ffffff26,#ffffff09 42%,#ffffff12);backdrop-filter:blur(24px) saturate(1.45);-webkit-backdrop-filter:blur(24px) saturate(1.45);border-color:#ffffff35;box-shadow:inset 0 1px 0 #ffffff45,0 18px 60px #00000018;position:relative;overflow:hidden}.glass:before{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,#ffffff80,transparent);pointer-events:none}.footer{border-top:1px solid #ffffff12;padding:28px 0 38px;color:var(--muted);font-size:12px}.footer .copy{font-size:12px}.reveal{opacity:0;transform:translateY(18px);transition:opacity .65s ease,transform .65s cubic-bezier(.2,.8,.2,1)}.reveal.is-visible{opacity:1;transform:translateY(0)}[data-reveal="fade"]{transform:none}[data-reveal="fade-up"]{transform:translateY(18px)}[data-reveal="scale"]{transform:scale(.97)}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none}}@media(max-width:700px){.forma-grid{grid-template-columns:1fr}.shell{padding:0 19px}.nav{height:70px}.nav nav{gap:12px}.nav nav .nav-link:nth-of-type(n+3){display:none}.nav .button{padding:10px 12px}.hero{padding:86px 0 58px}.cards{grid-template-columns:1fr;padding-bottom:55px}.card{min-height:unset}.hero h2{font-size:clamp(43px,12vw,66px)}}
+a{color:inherit;text-decoration:none}.shell{max-width:1120px;margin:0 auto;padding:0 28px}.nav{height:84px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff12}.logo{font-weight:750;letter-spacing:-.06em;font-size:22px}.nav nav{display:flex;align-items:center;gap:25px}.nav-link{font-size:13px;color:var(--muted);transition:color .2s}.nav-link:hover{color:var(--fg)}.button{display:inline-flex;align-items:center;gap:16px;padding:12px 17px;border-radius:999px;background:var(--accent);color:#11130c;font-size:13px;font-weight:700;transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s}.button:hover{transform:translateY(-2px) scale(1.015);box-shadow:0 10px 32px color-mix(in srgb,var(--accent) 22%,transparent)}.button:active{transform:scale(.97)}.button span{font-size:16px}.button-secondary,.forma-variant-secondary{background:#ffffff0b;color:var(--fg);border:1px solid #ffffff20}.forma-variant-quiet{background:transparent;color:var(--fg);border:1px solid transparent}.forma-variant-danger{background:#ef4444;color:#fff}.forma-variant-featured{border-color:color-mix(in srgb,var(--accent) 65%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 22%,transparent)}.forma-surface-solid{background:var(--bg);border-color:#ffffff24}.forma-surface-soft{background:color-mix(in srgb,var(--fg) 5%,var(--bg));border-color:#ffffff12}.forma-surface-glass{background:linear-gradient(135deg,#ffffff26,#ffffff09 42%,#ffffff12);backdrop-filter:blur(24px) saturate(1.45);-webkit-backdrop-filter:blur(24px) saturate(1.45);border-color:#ffffff35;box-shadow:inset 0 1px 0 #ffffff45,0 18px 60px #00000018;position:relative;overflow:hidden}.forma-tone-accent{color:var(--accent)}.forma-tone-muted{color:var(--muted)}.forma-tone-danger{color:#ef4444}.forma-tone-accent.button{background:var(--accent);color:#11130c}.forma-tone-danger.button{background:#ef4444;color:#fff}.hero{padding:116px 0 86px;max-width:850px}.badge{display:inline-flex;padding:7px 11px;border:1px solid #ffffff20;background:#ffffff08;border-radius:999px;color:var(--accent);font-size:11px;font-weight:650;letter-spacing:.06em;text-transform:uppercase}.hero h2,.section-title{font-size:clamp(42px,7vw,82px);line-height:.99;letter-spacing:-.075em;font-weight:600;margin:24px 0}.hero .copy{font-size:clamp(16px,2vw,20px);max-width:590px;line-height:1.7;color:var(--muted);margin:0 0 28px}.hero .button{margin-right:9px}.forma-stack{display:flex;flex-direction:column;gap:16px}.forma-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.forma-grid{display:grid;grid-template-columns:repeat(var(--forma-columns,3),minmax(0,1fr));gap:16px}.forma-container{width:100%;margin-inline:auto}.forma-spacer{width:100%;pointer-events:none}.forma-divider{border:0;border-top:1px solid #ffffff20;width:100%;margin:0}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:16px 0 90px}.card,.panel{border:1px solid #ffffff15;background:linear-gradient(145deg,#ffffff09,#ffffff03);border-radius:22px;padding:26px;min-height:190px;transition:border-color .3s,transform .35s cubic-bezier(.2,.8,.2,1)}.card:hover{transform:translateY(-4px);border-color:#ffffff35}.card h2,.panel h2,.section-title{font-size:23px;letter-spacing:-.045em;margin:0 0 12px}.copy{color:var(--muted);font-size:14px;line-height:1.8;margin:0}.glass{background:linear-gradient(135deg,#ffffff26,#ffffff09 42%,#ffffff12);backdrop-filter:blur(24px) saturate(1.45);-webkit-backdrop-filter:blur(24px) saturate(1.45);border-color:#ffffff35;box-shadow:inset 0 1px 0 #ffffff45,0 18px 60px #00000018;position:relative;overflow:hidden}.glass:before{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,#ffffff80,transparent);pointer-events:none}.footer{border-top:1px solid #ffffff12;padding:28px 0 38px;color:var(--muted);font-size:12px}.footer .copy{font-size:12px}.reveal{opacity:0;transform:translateY(18px);transition:opacity .65s ease,transform .65s cubic-bezier(.2,.8,.2,1)}.reveal.is-visible{opacity:1;transform:translateY(0)}[data-reveal="fade"]{transform:none}[data-reveal="fade-up"]{transform:translateY(18px)}[data-reveal="scale"]{transform:scale(.97)}[data-hover="lift"]{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s,border-color .35s}[data-hover="lift"]:hover{transform:translateY(-6px)}[data-hover="glow"]{transition:box-shadow .35s,border-color .35s}[data-hover="glow"]:hover{box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 45%,transparent),0 18px 55px color-mix(in srgb,var(--accent) 18%,transparent);border-color:color-mix(in srgb,var(--accent) 55%,transparent)}[data-hover="scale"]{transition:transform .28s cubic-bezier(.2,.8,.2,1)}[data-hover="scale"]:hover{transform:scale(1.025)}[data-hover="tilt"]{transition:transform .35s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}[data-hover="tilt"]:hover{transform:perspective(900px) rotateX(2deg) rotateY(-2deg) translateY(-3px)}.reveal{transition-duration:var(--forma-motion-duration,.65s);transition-delay:var(--forma-motion-delay,0ms);transition-timing-function:var(--forma-motion-ease,cubic-bezier(.2,.8,.2,1))}[data-reveal="fade-down"]{transform:translateY(-18px)}[data-reveal="fade-left"]{transform:translateX(22px)}[data-reveal="fade-right"]{transform:translateX(-22px)}[data-reveal="zoom"]{transform:scale(.88)}[data-reveal="blur"]{filter:blur(10px);transform:translateY(8px)}.reveal.is-visible[data-reveal="blur"]{filter:blur(0)}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none}}@media(max-width:700px){.forma-grid{grid-template-columns:1fr}.shell{padding:0 19px}.nav{height:70px}.nav nav{gap:12px}.nav nav .nav-link:nth-of-type(n+3){display:none}.nav .button{padding:10px 12px}.hero{padding:86px 0 58px}.cards{grid-template-columns:1fr;padding-bottom:55px}.card{min-height:unset}.hero h2{font-size:clamp(43px,12vw,66px)}}
 `;
 
 export function compile(source) {
