@@ -1,6 +1,6 @@
 # Forma v.0.4
 
-Forma is an experimental frontend language prototype. Write `.forma` files; the compiler emits HTML and CSS that run in a browser. This release adds a first reactive runtime with state, text bindings, and click actions, alongside reusable components with typed properties, validated defaults, and required values.
+Forma is an experimental frontend language prototype. Write `.forma` files; the compiler emits HTML and CSS that run in a browser. This release adds liquid-glass surfaces and ambient visual effects, alongside configurable scroll reveals, hover interactions, design tokens, and a small reactive runtime.
 
 ## Requirements
 
