@@ -476,9 +476,15 @@ test('rejects invalid form controls and undeclared conditional state', () => {
 
 
 test('supports string equality in conditional blocks', () => {
-  const source = 'site "String conditions"\\n  page "/"\\n    state status = "Ready"\\n    when status = "Ready"\\n      text "The string condition matched."';
+  const source = [
+    'site "String conditions"',
+    '  page "/"',
+    '    state status = "Ready"',
+    '    when status = "Ready"',
+    '      text "The string condition matched."'
+  ].join('\n');
   const result = compile(source);
   assert.match(result.html, /data-forma-when="status"/);
   assert.match(result.html, /data-forma-when-value="&quot;Ready&quot;|data-forma-when-value="Ready"/);
-  assert.match(result.html, /The string condition matched\\./);
+  assert.match(result.html, /The string condition matched\./);
 });
