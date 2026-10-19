@@ -464,6 +464,10 @@ site "Forma · Feature Atlas"
             variant "secondary"
             on click
               set count = count - 1
+          button "Legacy secondary action"
+            secondary
+            on click
+              set status = "Legacy secondary syntax"
           button "Reset count"
             variant "quiet"
             on click
@@ -510,6 +514,7 @@ site "Forma · Feature Atlas"
         input demoWebsite url "Website field example"
           placeholder "https://example.com"
         select contactMethod "Preferred contact method"
+          required true
           option "Email" email
           option "Phone" phone
           option "No preference" any
@@ -517,6 +522,8 @@ site "Forma · Feature Atlas"
           placeholder "Write a short message..."
           rows 4
         checkbox wantsUpdates "Send me occasional updates"
+        checkbox demoChecked "Checkbox checked by default"
+          checked true
         when wantsUpdates = true
           text "You're opted in for the demo preference. This is conditional content driven by checkbox state."
             tone "accent"
