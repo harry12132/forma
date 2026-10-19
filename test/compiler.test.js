@@ -473,3 +473,12 @@ test('rejects invalid form controls and undeclared conditional state', () => {
   assert.throws(() => compile('site "X"\n  page "/"\n    when missing = true\n      text "Hidden"'), /state 'missing' has not been declared/);
   assert.throws(() => compile('site "X"\n  page "/"\n    state ready = false\n    when ready\n      text "Malformed"'), /use when state = value/);
 });
+
+
+test('supports string equality in conditional blocks', () => {
+  const source = 'site "String conditions"\\n  page "/"\\n    state status = "Ready"\\n    when status = "Ready"\\n      text "The string condition matched."';
+  const result = compile(source);
+  assert.match(result.html, /data-forma-when="status"/);
+  assert.match(result.html, /data-forma-when-value="&quot;Ready&quot;|data-forma-when-value="Ready"/);
+  assert.match(result.html, /The string condition matched\\./);
+});
