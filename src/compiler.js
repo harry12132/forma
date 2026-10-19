@@ -1,3 +1,6 @@
+import { parse } from './parser.js';
+export { parse };
+
 const VOID_TAGS = new Set(['img', 'input', 'br', 'hr']);
 const SAFE_COLOR = /^(#[0-9a-fA-F]{3,8}|[a-zA-Z]+|rgba?\([\d\s.,%]+\)|hsla?\([\d\s.,%deg]+\))$/;
 const SAFE_LENGTH = /^(\d+(\.\d+)?(px|rem|em|%|vw|vh)?|auto|none|0)$/;
@@ -10,44 +13,6 @@ function safeUrl(value) {
   if (/^(javascript|data|vbscript):/i.test(v)) throw new Error(`Unsafe URL: ${v}`);
   return v;
 }
-function parseArgs(raw) {
-  const out = [];
-  const re = /"((?:\\.|[^"\\])*)"|'((?:\\.|[^'\\])*)'|(\S+)/g;
-  let m;
-  while ((m = re.exec(raw))) out.push((m[1] ?? m[2] ?? m[3]).replace(/\\(["'\\])/g, '$1'));
-  return out;
-}
-
-export function parse(source) {
-  const root = { name: '$root', args: [], children: [], line: 0 };
-  const stack = [{ indent: -1, node: root }];
-  const lines = source.replace(/\r\n/g, '\n').split('\n');
-  for (let i = 0; i < lines.length; i++) {
-    const raw = lines[i];
-    if (!raw.trim() || raw.trimStart().startsWith('#')) continue;
-    if (/\t/.test(raw.match(/^\s*/)?.[0] || '')) throw new Error(`Line ${i + 1}: use spaces for indentation, not tabs.`);
-    const indent = raw.length - raw.trimStart().length;
-    if (indent % 2 !== 0) throw new Error(`Line ${i + 1}: indentation must use multiples of two spaces.`);
-    if (stack.length === 1 && indent !== 0) {
-      throw new Error(`Line ${i + 1}: top-level blocks must start at column 1 with no indentation.`);
-    }
-    const content = raw.trim();
-    const match = content.match(/^([\w-]+)(?:\s+(.*))?$/);
-    if (!match) throw new Error(`Line ${i + 1}: could not parse '${content}'.`);
-    while (stack.length > 1 && indent <= stack.at(-1).indent) stack.pop();
-    if (stack.length > 1 && indent > stack.at(-1).indent + 2) {
-      throw new Error(`Line ${i + 1}: indentation jumped too far. Indent each nested block by exactly two spaces.`);
-    }
-    if (stack.length > 1 && indent > stack.at(-1).indent && indent !== stack.at(-1).indent + 2) {
-      throw new Error(`Line ${i + 1}: expected indentation of ${stack.at(-1).indent + 2} spaces for a child of '${stack.at(-1).node.name}'.`);
-    }
-    const node = { name: match[1], args: parseArgs(match[2] || ''), children: [], line: i + 1 };
-    stack.at(-1).node.children.push(node);
-    stack.push({ indent, node });
-  }
-  return root;
-}
-
 function one(node, name, required = false) {
   const found = node.children.filter(c => c.name === name);
   if (found.length > 1) throw new Error(`Line ${found[1].line}: '${name}' can only appear once here.`);
