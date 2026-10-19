@@ -341,3 +341,21 @@ test('requires semantic theme references to point to colour tokens', () => {
   const src = ['site "X"', '  theme', '    token radius card "8px"', '    accent "$card"', '  page "/"'].join('\n');
   assert.throws(() => compile(src), /must reference a declared color token/);
 });
+
+test('supports component variants, surfaces, and typed design token references', () => {
+  const src = ['site "Styles"','  theme','    token radius card "24px"','    token shadow soft "0 12px 30px #00000022"','    token font display "Inter"','    token size large "32px"','  page "/"','    button "Continue"','      variant "secondary"','      radius "$card"','      shadow "$soft"','      font "$display"','      text-size "$large"','    card','      surface "glass"','      title "Styled card"','      text "Example"'].join('\n');
+  const result = compile(src);
+  assert.match(result.html, /forma-variant-secondary/);
+  assert.match(result.html, /border-radius:var\(--forma-radius-card\)/);
+  assert.match(result.html, /box-shadow:var\(--forma-shadow-soft\)/);
+  assert.match(result.html, /font-family:var\(--forma-font-display\)/);
+  assert.match(result.html, /font-size:var\(--forma-size-large\)/);
+  assert.match(result.html, /forma-surface-glass/);
+});
+
+test('rejects invalid component variants and token types', () => {
+  const invalidVariant = ['site "X"','  page "/"','    button "Go"','      variant "neon"'].join('\n');
+  assert.throws(() => compile(invalidVariant), /invalid variant/);
+  const wrongToken = ['site "X"','  theme','    token color blue "#00f"','  page "/"','    card','      radius "$blue"'].join('\n');
+  assert.throws(() => compile(wrongToken), /must be declared as a radius token/);
+});
