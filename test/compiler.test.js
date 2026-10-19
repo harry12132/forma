@@ -119,28 +119,28 @@ test('escapes dynamic text bindings instead of injecting HTML', () => {
 test('requires top-level blocks to begin at column one', () => {
   assert.throws(
     () => parse('  site "X"\n  page "/"'),
-    /Line 1: top-level blocks must start at column 1/
+    /Line 1, column 1: top-level blocks must start at column 1/
   );
 });
 
 test('rejects tabs used for indentation with a useful line number', () => {
   assert.throws(
     () => parse('site "X"\n\tpage "/"'),
-    /Line 2: use spaces for indentation, not tabs/
+    /Line 2, column 1: use spaces for indentation, not tabs/
   );
 });
 
 test('rejects indentation that skips a nesting level', () => {
   assert.throws(
     () => parse('site "X"\n    page "/"'),
-    /Line 2: indentation jumped too far/
+    /Line 2, column 5: indentation jumped too far/
   );
 });
 
 test('rejects odd indentation widths', () => {
   assert.throws(
     () => parse('site "X"\n page "/"'),
-    /Line 2: indentation must use multiples of two spaces/
+    /Line 2, column 2: indentation must use multiples of two spaces/
   );
 });
 
