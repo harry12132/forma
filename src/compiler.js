@@ -67,7 +67,7 @@ function renderBoundText(value, props = {}, states = {}) {
 }
 function parseComponentProp(node, componentName) {
   const name = arg(node);
-  if (!/^[A-Za-z_][\\w]*$/.test(name)) throw new Error(`Line ${node.line}: invalid property name '${name}' in component '${componentName}'.`);
+  if (!/^[A-Za-z_][\w]*$/.test(name)) throw new Error(`Line ${node.line}: invalid property name '${name}' in component '${componentName}'.`);
   // Legacy: prop heading "Default". Typed: prop count number 3, prop enabled boolean false, or prop heading string.
   const typed = ['string', 'number', 'boolean'].includes(node.args[1]);
   const type = typed ? node.args[1] : 'string';
@@ -83,7 +83,7 @@ function coerceComponentProp(raw, schema, line, componentName) {
   if (type === 'string') return String(raw);
   if (type === 'number') {
     if (typeof raw === 'number') return raw;
-    if (!/^-?(?:\\d+\\.?\\d*|\\.\\d+)$/.test(String(raw))) throw new Error(`Line ${line}: property '${name}' on '${componentName}' must be a number, received '${raw}'.`);
+    if (!/^-?(?:\d+\\.?\d*|\\.\d+)$/.test(String(raw))) throw new Error(`Line ${line}: property '${name}' on '${componentName}' must be a number, received '${raw}'.`);
     const value = Number(raw);
     if (!Number.isFinite(value)) throw new Error(`Line ${line}: property '${name}' must be a finite number.`);
     return value;
